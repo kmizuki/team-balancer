@@ -41,6 +41,7 @@ credentials = service_account.Credentials.from_service_account_info(st.secrets["
 client = storage.Client(credentials=credentials)
 
 
+@st.experimental_memo(ttl=600)
 def read_file(bucket_name, file_path):
     bucket = client.bucket(bucket_name)
     content = bucket.blob(file_path).download_as_bytes()
