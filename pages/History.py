@@ -4,6 +4,8 @@ from google.cloud import storage
 from io import BytesIO
 import pandas as pd
 
+# st.title("試合記録")
+
 # Create API client.
 credentials = service_account.Credentials.from_service_account_info(
     st.secrets["gcp_service_account"]
