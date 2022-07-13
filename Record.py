@@ -264,7 +264,7 @@ for (player, champion) in df_set_dict.keys():
     )
 
 for keys in df_all_dict.keys():
-    df_all_dict[keys] = df_all_dict[keys].sort_values("rating", ascending=False)
+    df_all_dict[keys] = df_all_dict[keys].sort_values("win_rate", ascending=False)
     df_all_dict[keys] = (
         df_all_dict[keys]
         .style.format(
@@ -290,7 +290,6 @@ for keys in df_all_dict.keys():
         .highlight_max(axis=0, subset="kda")
         .highlight_max(axis=0, subset="cs")
         .highlight_max(axis=0, subset="gold")
-        .highlight_max(axis=0, subset="rating")
     )
 for keys in df_all_champion_dict.keys():
     df_all_champion_dict[keys] = df_all_champion_dict[keys].sort_values("match_count", ascending=False)
