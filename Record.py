@@ -4,7 +4,12 @@ from google.cloud import storage
 from io import BytesIO
 import pandas as pd
 
-# st.title("個人戦績")
+st.set_page_config(
+    page_title="Plin Custom",
+    page_icon="garen.jpeg",
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
 
 # Create API client.
 credentials = service_account.Credentials.from_service_account_info(
