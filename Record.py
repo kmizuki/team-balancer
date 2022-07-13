@@ -392,23 +392,16 @@ st.dataframe(df_player_dict[option2])
 st.dataframe(df_all_set_dict[option2])
 
 st.write("勝率予測")
-st.write("チーム1")
 
-column1, column2, column3, column4, column5 = st.columns(5)
-p0 = column1.selectbox("1", df_player_dict.keys())
-p1 = column2.selectbox("2", df_player_dict.keys())
-p2 = column3.selectbox("3", df_player_dict.keys())
-p3 = column4.selectbox("4", df_player_dict.keys())
-p4 = column5.selectbox("5", df_player_dict.keys())
-st.write("チーム2")
-column6, column7, column8, column9, column10 = st.columns(5)
-p5 = column6.selectbox("6", df_player_dict.keys())
-p6 = column7.selectbox("7", df_player_dict.keys())
-p7 = column8.selectbox("8", df_player_dict.keys())
-p8 = column9.selectbox("9", df_player_dict.keys())
-p9 = column10.selectbox("10", df_player_dict.keys())
-t1 = [rate_dict[p0], rate_dict[p1], rate_dict[p2], rate_dict[p3], rate_dict[p4]]
-t2 = [rate_dict[p5], rate_dict[p6], rate_dict[p7], rate_dict[p8], rate_dict[p9]]
+options3 = st.multiselect("チーム1", df_player_dict.keys(), [])
+options4 = st.multiselect("チーム2", df_player_dict.keys(), [])
+
+t1 = []
+t2 = []
+for player in options3:
+    t1.append(rate_dict[player])
+for player in options4:
+    t2.append(rate_dict[player])
 wp = win_probability(t1, t2, env=env)
 
 st.write(f"チーム1の勝率: {wp*100.0:.2f}%")
