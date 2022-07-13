@@ -3,6 +3,19 @@ from google.oauth2 import service_account
 from google.cloud import storage
 from io import BytesIO
 import pandas as pd
+import trueskill
+import itertools
+import math
+
+
+def win_probability(team1, team2, env=None):
+    env = env if env else trueskill.global_env()
+    delta_mu = sum(r.mu for r in team1) - sum(r.mu for r in team2)
+    sum_sigma = sum(r.sigma**2 for r in itertools.chain(team1, team2))
+    size = len(team1) + len(team2)
+    denom = math.sqrt(size * (env.beta * env.beta) + sum_sigma)
+    return env.cdf(delta_mu / denom)
+
 
 st.set_page_config(
     page_title="PlinCustom",
@@ -10,6 +23,18 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
 )
+
+mu = 25.0
+sigma = mu / 3.0
+beta = sigma / 1.5
+tau = sigma / 100.0
+draw_probability = 0.0
+backend = None
+
+env = trueskill.TrueSkill(mu=mu, sigma=sigma, beta=beta, tau=tau, draw_probability=draw_probability, backend=backend)
+
+env.make_as_global()
+rate_dict = {}
 
 # Create API client.
 credentials = service_account.Credentials.from_service_account_info(st.secrets["gcp_service_account"])
@@ -37,6 +62,7 @@ match_dict = dict(
     cs=[0, 0, 0, 0, 0, 0],
     gold=[0, 0, 0, 0, 0, 0],
     c_ward=[0, 0, 0, 0, 0, 0],
+    rating=[0, 0, 0, 0, 0, 0],
 )
 position_dict = {
     "TOP": "top",
@@ -60,6 +86,8 @@ for blob in reversed(list(blobs)):
     df = pd.read_csv(BytesIO(content))
     df["cs"] = df["minionsKilled"] + df["neutralMinionsKilled"]
 
+    team1 = {}
+    team2 = {}
     for data in df.itertuples():
         if data.player in name_dict:
             player_name = name_dict[data.player]
@@ -67,6 +95,33 @@ for blob in reversed(list(blobs)):
             player_name = data.player
         if player_name not in df_player_dict:
             df_player_dict[player_name] = df_personal.copy()
+            rate_dict[player_name] = env.create_rating()
+        if data.team == 100:
+            team1[player_name] = rate_dict[player_name]
+        else:
+            team2[player_name] = rate_dict[player_name]
+    wp = win_probability(team1.values(), team2.values(), env=env)
+
+    team1, team2, = env.rate(
+        (
+            team1,
+            team2,
+        ),
+        ranks=(
+            0 + (data.win == "Win"),
+            1 - (data.win == "Win"),
+        ),
+    )
+    for r_key in team1.keys():
+        rate_dict[r_key] = team1[r_key]
+    for r_key in team2.keys():
+        rate_dict[r_key] = team2[r_key]
+
+    for data in df.itertuples():
+        if data.player in name_dict:
+            player_name = name_dict[data.player]
+        else:
+            player_name = data.player
         champion_name = data.skin
         if champion_name not in df_champion_dict:
             df_champion_dict[champion_name] = df_personal.copy()
@@ -82,6 +137,7 @@ for blob in reversed(list(blobs)):
         df_player_dict[player_name]["cs"]["all"] += data.cs
         df_player_dict[player_name]["gold"]["all"] += data.goldEarned
         df_player_dict[player_name]["c_ward"]["all"] += data.visionWardsBoughtInGame
+        df_player_dict[player_name]["rating"]["all"] = rate_dict[player_name].mu
         df_champion_dict[champion_name]["match_count"]["all"] += 1
         df_champion_dict[champion_name]["win_count"]["all"] += 1 if data.win == "Win" else 0
         df_champion_dict[champion_name]["kill"]["all"] += data.championsKilled
@@ -208,7 +264,7 @@ for (player, champion) in df_set_dict.keys():
     )
 
 for keys in df_all_dict.keys():
-    df_all_dict[keys] = df_all_dict[keys].sort_values("win_rate", ascending=False)
+    df_all_dict[keys] = df_all_dict[keys].sort_values("rating", ascending=False)
     df_all_dict[keys] = (
         df_all_dict[keys]
         .style.format(
@@ -223,6 +279,7 @@ for keys in df_all_dict.keys():
                 "cs": "{:.0f}",
                 "gold": "{:.0f}",
                 "c_ward": "{:.1f}",
+                "rating": "{:.1f}",
             },
             na_rep="-",
         )
@@ -233,6 +290,7 @@ for keys in df_all_dict.keys():
         .highlight_max(axis=0, subset="kda")
         .highlight_max(axis=0, subset="cs")
         .highlight_max(axis=0, subset="gold")
+        .highlight_max(axis=0, subset="rating")
     )
 for keys in df_all_champion_dict.keys():
     df_all_champion_dict[keys] = df_all_champion_dict[keys].sort_values("match_count", ascending=False)
@@ -250,6 +308,7 @@ for keys in df_all_champion_dict.keys():
                 "cs": "{:.0f}",
                 "gold": "{:.0f}",
                 "c_ward": "{:.1f}",
+                "rating": "{:.1f}",
             },
             na_rep="-",
         )
@@ -277,6 +336,7 @@ for keys in df_all_set_dict.keys():
                 "cs": "{:.0f}",
                 "gold": "{:.0f}",
                 "c_ward": "{:.1f}",
+                "rating": "{:.1f}",
             },
             na_rep="-",
         )
@@ -306,6 +366,7 @@ for keys in df_player_dict.keys():
             "cs": "{:.0f}",
             "gold": "{:.0f}",
             "c_ward": "{:.1f}",
+            "rating": "{:.1f}",
         },
         na_rep="-",
     )
@@ -320,6 +381,7 @@ for keys in df_champion_dict.keys():
             "cs": "{:.0f}",
             "gold": "{:.0f}",
             "c_ward": "{:.1f}",
+            "rating": "{:.1f}",
         },
         na_rep="-",
     )
@@ -329,3 +391,25 @@ option2 = st.selectbox("プレイヤーの選択", df_player_dict.keys())
 
 st.dataframe(df_player_dict[option2])
 st.dataframe(df_all_set_dict[option2])
+
+st.write("勝率予測")
+st.write("チーム1")
+
+column1, column2, column3, column4, column5 = st.columns(5)
+p0 = column1.selectbox("1", df_player_dict.keys())
+p1 = column2.selectbox("2", df_player_dict.keys())
+p2 = column3.selectbox("3", df_player_dict.keys())
+p3 = column4.selectbox("4", df_player_dict.keys())
+p4 = column5.selectbox("5", df_player_dict.keys())
+st.write("チーム2")
+column6, column7, column8, column9, column10 = st.columns(5)
+p5 = column6.selectbox("6", df_player_dict.keys())
+p6 = column7.selectbox("7", df_player_dict.keys())
+p7 = column8.selectbox("8", df_player_dict.keys())
+p8 = column9.selectbox("9", df_player_dict.keys())
+p9 = column10.selectbox("10", df_player_dict.keys())
+t1 = [rate_dict[p0], rate_dict[p1], rate_dict[p2], rate_dict[p3], rate_dict[p4]]
+t2 = [rate_dict[p5], rate_dict[p6], rate_dict[p7], rate_dict[p8], rate_dict[p9]]
+wp = win_probability(t1, t2, env=env)
+
+st.write(f"チーム1の予測勝率: {wp*100.0:.2f}%")
