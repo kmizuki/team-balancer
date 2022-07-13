@@ -14,9 +14,7 @@ st.set_page_config(
 # st.title("試合記録")
 
 # Create API client.
-credentials = service_account.Credentials.from_service_account_info(
-    st.secrets["gcp_service_account"]
-)
+credentials = service_account.Credentials.from_service_account_info(st.secrets["gcp_service_account"])
 client = storage.Client(credentials=credentials)
 
 
@@ -55,12 +53,8 @@ for blob in reversed(list(blobs)):
     df1 = df[0:5]
     df2 = df[5:10]
     pos_order = ["TOP", "JUNGLE", "MIDDLE", "BOTTOM", "UTILITY"]
-    df1["order"] = df1["position"].apply(
-        lambda x: pos_order.index(x) if x in pos_order else -1
-    )
-    df2["order"] = df2["position"].apply(
-        lambda x: pos_order.index(x) if x in pos_order else -1
-    )
+    df1["order"] = df1["position"].apply(lambda x: pos_order.index(x) if x in pos_order else -1)
+    df2["order"] = df2["position"].apply(lambda x: pos_order.index(x) if x in pos_order else -1)
     df1 = df1.sort_values("order")
     df2 = df2.sort_values("order")
     drop_col = ["player", "order", "minionsKilled", "neutralMinionsKilled", "position"]
