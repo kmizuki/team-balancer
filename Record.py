@@ -134,7 +134,8 @@ for keys in df_all_dict.keys():
                 "kda": "{:.2f}",
                 "cs": "{:.0f}",
                 "gold": "{:.0f}",
-            }
+            },
+            na_rep="-",
         )
         .highlight_max(axis=0, subset="win_rate")
         .highlight_max(axis=0, subset="kill")
@@ -162,7 +163,8 @@ for keys in df_dict.keys():
             "cs": "{:.0f}",
             "gold": "{:.0f}",
             "c_ward": "{:.1f}",
-        }
+        },
+        na_rep="-",
     )
 
 st.write("個人戦績")
