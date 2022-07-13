@@ -412,4 +412,4 @@ t1 = [rate_dict[p0], rate_dict[p1], rate_dict[p2], rate_dict[p3], rate_dict[p4]]
 t2 = [rate_dict[p5], rate_dict[p6], rate_dict[p7], rate_dict[p8], rate_dict[p9]]
 wp = win_probability(t1, t2, env=env)
 
-st.write(f"チーム1の予測勝率: {wp*100.0:.2f}%")
+st.write(f"チーム1の勝率: {wp*100.0:.2f}%")
