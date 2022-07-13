@@ -78,7 +78,7 @@ df_champion_dict = {}
 df_set_dict = {}
 
 blobs = client.list_blobs(bucket_name)
-for blob in reversed(list(blobs)):
+for blob in blobs:
     file_path = blob.name
 
     content = read_file(bucket_name, file_path)
