@@ -123,8 +123,8 @@ st.write("勝率予測")
 options3 = st.multiselect("チーム1", df_player_dict.keys(), [])
 options4 = st.multiselect("チーム2", df_player_dict.keys(), [])
 
-t1 = []
-t2 = []
+t1 = [list(df_player_dict.keys())[0]]
+t2 = [list(df_player_dict.keys())[0]]
 for player in options3:
     t1.append(rate_dict[player])
 for player in options4:
