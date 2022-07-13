@@ -26,7 +26,7 @@ st.set_page_config(
 
 mu = 25.0
 sigma = mu / 3.0
-beta = sigma / 1.5
+beta = sigma / 2.0
 tau = sigma / 100.0
 draw_probability = 0.0
 backend = None
@@ -120,8 +120,8 @@ for blob in reversed(list(blobs)):
 
 st.write("勝率予測")
 
-options3 = st.multiselect("チーム1", df_player_dict.keys(), [list(df_player_dict.keys())[0]])
-options4 = st.multiselect("チーム2", df_player_dict.keys(), [list(df_player_dict.keys())[0]])
+options3 = st.multiselect("チーム1", df_player_dict.keys(), [])
+options4 = st.multiselect("チーム2", df_player_dict.keys(), [])
 
 t1 = []
 t2 = []
@@ -129,6 +129,6 @@ for player in options3:
     t1.append(rate_dict[player])
 for player in options4:
     t2.append(rate_dict[player])
-wp = win_probability(t1, t2, env=env)
-
-st.write(f"チーム1の勝率: {wp*100.0:.2f}%")
+if t1 != [] or t2 != []:
+    wp = win_probability(t1, t2, env=env)
+    st.write(f"チーム1の勝率: {wp*100.0:.2f}%")

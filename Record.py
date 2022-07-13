@@ -26,7 +26,7 @@ st.set_page_config(
 
 mu = 25.0
 sigma = mu / 3.0
-beta = sigma / 1.5
+beta = sigma / 2.0
 tau = sigma / 100.0
 draw_probability = 0.0
 backend = None
