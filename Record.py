@@ -49,6 +49,7 @@ position_idx = ["all", "top", "jg", "mid", "bot", "supp"]
 df_personal = pd.DataFrame(data=match_dict, index=position_idx)
 df_player_dict = {}
 df_champion_dict = {}
+df_set_dict = {}
 
 blobs = client.list_blobs(bucket_name)
 for blob in reversed(list(blobs)):
@@ -66,12 +67,11 @@ for blob in reversed(list(blobs)):
             player_name = data.player
         if player_name not in df_player_dict:
             df_player_dict[player_name] = df_personal.copy()
-        if data.skin in name_dict:
-            champion_name = name_dict[data.skin]
-        else:
-            champion_name = data.skin
+        champion_name = data.skin
         if champion_name not in df_champion_dict:
             df_champion_dict[champion_name] = df_personal.copy()
+        if (player_name, champion_name) not in df_set_dict:
+            df_set_dict[(player_name, champion_name)] = df_personal.copy()
 
         # 全データ集計
         df_player_dict[player_name]["match_count"]["all"] += 1
@@ -90,6 +90,14 @@ for blob in reversed(list(blobs)):
         df_champion_dict[champion_name]["cs"]["all"] += data.cs
         df_champion_dict[champion_name]["gold"]["all"] += data.goldEarned
         df_champion_dict[champion_name]["c_ward"]["all"] += data.visionWardsBoughtInGame
+        df_set_dict[(player_name, champion_name)]["match_count"]["all"] += 1
+        df_set_dict[(player_name, champion_name)]["win_count"]["all"] += 1 if data.win == "Win" else 0
+        df_set_dict[(player_name, champion_name)]["kill"]["all"] += data.championsKilled
+        df_set_dict[(player_name, champion_name)]["death"]["all"] += data.numDeaths
+        df_set_dict[(player_name, champion_name)]["assist"]["all"] += data.assists
+        df_set_dict[(player_name, champion_name)]["cs"]["all"] += data.cs
+        df_set_dict[(player_name, champion_name)]["gold"]["all"] += data.goldEarned
+        df_set_dict[(player_name, champion_name)]["c_ward"]["all"] += data.visionWardsBoughtInGame
 
         # ポジション毎データ集計
         df_player_dict[player_name]["match_count"][position_dict[data.individualPosition]] += 1
@@ -112,6 +120,20 @@ for blob in reversed(list(blobs)):
         df_champion_dict[champion_name]["cs"][position_dict[data.individualPosition]] += data.cs
         df_champion_dict[champion_name]["gold"][position_dict[data.individualPosition]] += data.goldEarned
         df_champion_dict[champion_name]["c_ward"][
+            position_dict[data.individualPosition]
+        ] += data.visionWardsBoughtInGame
+        df_set_dict[(player_name, champion_name)]["match_count"][position_dict[data.individualPosition]] += 1
+        df_set_dict[(player_name, champion_name)]["win_count"][position_dict[data.individualPosition]] += (
+            1 if data.win == "Win" else 0
+        )
+        df_set_dict[(player_name, champion_name)]["kill"][
+            position_dict[data.individualPosition]
+        ] += data.championsKilled
+        df_set_dict[(player_name, champion_name)]["death"][position_dict[data.individualPosition]] += data.numDeaths
+        df_set_dict[(player_name, champion_name)]["assist"][position_dict[data.individualPosition]] += data.assists
+        df_set_dict[(player_name, champion_name)]["cs"][position_dict[data.individualPosition]] += data.cs
+        df_set_dict[(player_name, champion_name)]["gold"][position_dict[data.individualPosition]] += data.goldEarned
+        df_set_dict[(player_name, champion_name)]["c_ward"][
             position_dict[data.individualPosition]
         ] += data.visionWardsBoughtInGame
 
@@ -142,6 +164,20 @@ for champion_name in df_champion_dict.keys():
     df_champion_dict[champion_name]["cs"] /= df_champion_dict[champion_name]["match_count"]
     df_champion_dict[champion_name]["gold"] /= df_champion_dict[champion_name]["match_count"]
     df_champion_dict[champion_name]["c_ward"] /= df_champion_dict[champion_name]["match_count"]
+for (player_name, champion_name) in df_set_dict.keys():
+    df_set_dict[(player_name, champion_name)]["win_rate"] = (
+        df_set_dict[(player_name, champion_name)]["win_count"]
+        / df_set_dict[(player_name, champion_name)]["match_count"]
+    )
+    df_set_dict[(player_name, champion_name)]["kill"] /= df_set_dict[(player_name, champion_name)]["match_count"]
+    df_set_dict[(player_name, champion_name)]["death"] /= df_set_dict[(player_name, champion_name)]["match_count"]
+    df_set_dict[(player_name, champion_name)]["assist"] /= df_set_dict[(player_name, champion_name)]["match_count"]
+    df_set_dict[(player_name, champion_name)]["kda"] = (
+        df_set_dict[(player_name, champion_name)]["kill"] + df_set_dict[(player_name, champion_name)]["assist"]
+    ) / df_set_dict[(player_name, champion_name)]["death"]
+    df_set_dict[(player_name, champion_name)]["cs"] /= df_set_dict[(player_name, champion_name)]["match_count"]
+    df_set_dict[(player_name, champion_name)]["gold"] /= df_set_dict[(player_name, champion_name)]["match_count"]
+    df_set_dict[(player_name, champion_name)]["c_ward"] /= df_set_dict[(player_name, champion_name)]["match_count"]
 
 # 全体集計用データ作成
 df_all_player = pd.DataFrame(index=[], columns=df_player_dict[next(iter(df_player_dict))].columns)
@@ -155,12 +191,21 @@ for player in df_player_dict.keys():
 
 df_all_champion = pd.DataFrame(index=[], columns=df_champion_dict[next(iter(df_champion_dict))].columns)
 df_all_champion_dict = {}
-for player in df_champion_dict.keys():
-    for position in df_champion_dict[player].iterrows():
+for champion in df_champion_dict.keys():
+    for position in df_champion_dict[champion].iterrows():
         if position[0] not in df_all_champion_dict:
             df_all_champion_dict[position[0]] = df_all_champion.copy()
-        df_tmp = pd.DataFrame([position[1]], index={player})
+        df_tmp = pd.DataFrame([position[1]], index={champion})
         df_all_champion_dict[position[0]] = pd.concat([df_all_champion_dict[position[0]], df_tmp])
+
+df_all_set = pd.DataFrame(index=[], columns=df_set_dict[next(iter(df_set_dict))].columns)
+df_all_set_dict = {}
+for (player, champion) in df_set_dict.keys():
+    if player not in df_all_set_dict:
+        df_all_set_dict[player] = df_all_set.copy()
+    df_all_set_dict[player] = pd.concat(
+        [df_all_set_dict[player], df_set_dict[(player, champion)][:1].rename(index={"all": champion})]
+    )
 
 for keys in df_all_dict.keys():
     df_all_dict[keys] = df_all_dict[keys].sort_values("win_rate", ascending=False)
@@ -193,6 +238,33 @@ for keys in df_all_champion_dict.keys():
     df_all_champion_dict[keys] = df_all_champion_dict[keys].sort_values("match_count", ascending=False)
     df_all_champion_dict[keys] = (
         df_all_champion_dict[keys]
+        .style.format(
+            formatter={
+                "match_count": "{:.0f}",
+                "win_count": "{:.0f}",
+                "win_rate": "{:.2f}",
+                "kill": "{:.1f}",
+                "death": "{:.1f}",
+                "assist": "{:.1f}",
+                "kda": "{:.2f}",
+                "cs": "{:.0f}",
+                "gold": "{:.0f}",
+                "c_ward": "{:.1f}",
+            },
+            na_rep="-",
+        )
+        .highlight_max(axis=0, subset="win_rate")
+        .highlight_max(axis=0, subset="kill")
+        .highlight_min(axis=0, subset="death")
+        .highlight_max(axis=0, subset="assist")
+        .highlight_max(axis=0, subset="kda")
+        .highlight_max(axis=0, subset="cs")
+        .highlight_max(axis=0, subset="gold")
+    )
+for keys in df_all_set_dict.keys():
+    df_all_set_dict[keys] = df_all_set_dict[keys].sort_values("match_count", ascending=False)
+    df_all_set_dict[keys] = (
+        df_all_set_dict[keys]
         .style.format(
             formatter={
                 "match_count": "{:.0f}",
@@ -255,9 +327,5 @@ for keys in df_champion_dict.keys():
 st.write("個人戦績")
 option2 = st.selectbox("プレイヤーの選択", df_player_dict.keys())
 
-st.table(df_player_dict[option2])
-
-st.write("チャンピオン戦績")
-option3 = st.selectbox("チャンピオンの選択", df_champion_dict.keys())
-
-st.table(df_champion_dict[option3])
+st.dataframe(df_player_dict[option2])
+st.dataframe(df_all_set_dict[option2])
