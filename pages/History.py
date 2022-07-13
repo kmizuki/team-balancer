@@ -4,6 +4,13 @@ from google.cloud import storage
 from io import BytesIO
 import pandas as pd
 
+st.set_page_config(
+    page_title="PlinCustom",
+    page_icon="garen.jpeg",
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
+
 # st.title("試合記録")
 
 # Create API client.
