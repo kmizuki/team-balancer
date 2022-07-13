@@ -41,7 +41,6 @@ credentials = service_account.Credentials.from_service_account_info(st.secrets["
 client = storage.Client(credentials=credentials)
 
 
-@st.experimental_memo(ttl=600)
 def read_file(bucket_name, file_path):
     bucket = client.bucket(bucket_name)
     content = bucket.blob(file_path).download_as_bytes()
@@ -391,18 +390,3 @@ option2 = st.selectbox("プレイヤーの選択", df_player_dict.keys())
 
 st.dataframe(df_player_dict[option2])
 st.dataframe(df_all_set_dict[option2])
-
-st.write("勝率予測")
-
-options3 = st.multiselect("チーム1", df_player_dict.keys(), [])
-options4 = st.multiselect("チーム2", df_player_dict.keys(), [])
-
-t1 = []
-t2 = []
-for player in options3:
-    t1.append(rate_dict[player])
-for player in options4:
-    t2.append(rate_dict[player])
-wp = win_probability(t1, t2, env=env)
-
-st.write(f"チーム1の勝率: {wp*100.0:.2f}%")
