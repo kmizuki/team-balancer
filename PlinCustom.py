@@ -95,11 +95,11 @@ def get_all_record():
                 player_name = data.player
             if player_name not in st.session_state.df_player_dict:
                 st.session_state.df_player_dict[player_name] = df_personal.copy()
-                st.session_state.rate_dict[player_name] = st.session_state.env.create_rating()
+                st.session_state.rate_dict[player_name] = [st.session_state.env.create_rating()]
             if data.team == 100:
-                team1[player_name] = st.session_state.rate_dict[player_name]
+                team1[player_name] = st.session_state.rate_dict[player_name][0]
             else:
-                team2[player_name] = st.session_state.rate_dict[player_name]
+                team2[player_name] = st.session_state.rate_dict[player_name][0]
 
         team1, team2, = st.session_state.env.rate(
             (
@@ -112,9 +112,9 @@ def get_all_record():
             ),
         )
         for r_key in team1.keys():
-            st.session_state.rate_dict[r_key] = team1[r_key]
+            st.session_state.rate_dict[r_key].insert(0, team1[r_key])
         for r_key in team2.keys():
-            st.session_state.rate_dict[r_key] = team2[r_key]
+            st.session_state.rate_dict[r_key].insert(0, team2[r_key])
 
         for data in df.itertuples():
             if data.player in name_dict:
@@ -136,7 +136,9 @@ def get_all_record():
             st.session_state.df_player_dict[player_name]["cs"]["all"] += data.cs
             st.session_state.df_player_dict[player_name]["gold"]["all"] += data.goldEarned
             st.session_state.df_player_dict[player_name]["c_ward"]["all"] += data.visionWardsBoughtInGame
-            st.session_state.df_player_dict[player_name]["rating"]["all"] = st.session_state.rate_dict[player_name].mu
+            st.session_state.df_player_dict[player_name]["rating"]["all"] = st.session_state.rate_dict[player_name][
+                0
+            ].mu
             st.session_state.df_champion_dict[champion_name]["match_count"]["all"] += 1
             st.session_state.df_champion_dict[champion_name]["win_count"]["all"] += 1 if data.win == "Win" else 0
             st.session_state.df_champion_dict[champion_name]["kill"]["all"] += data.championsKilled
@@ -355,15 +357,7 @@ def get_all_record():
 
 
 def page_record():
-    mu = 25.0
-    sigma = mu / 3.0
-    beta = sigma / 2.0
-    tau = sigma / 100.0
-    draw_probability = 0.0
-    backend = None
-    st.session_state.env = trueskill.TrueSkill(
-        mu=mu, sigma=sigma, beta=beta, tau=tau, draw_probability=draw_probability, backend=backend
-    )
+    st.session_state.env = trueskill.TrueSkill(draw_probability=0.0)
     st.session_state.env.make_as_global()
     st.session_state.rate_dict = {}
     st.session_state.df_player_dict = {}
@@ -521,6 +515,10 @@ def page_record():
         st.dataframe(df_player_dict_styler[option2])
         st.dataframe(st.session_state.df_all_set_dict[option2])
 
+        st.write("レート変動")
+        chart_data = pd.DataFrame(st.session_state.rate_dict[option2][::-1], columns=["期待値", "標準偏差"])
+        st.line_chart(chart_data)
+
 
 def page_history():
     for i, df in enumerate(reversed(list(st.session_state.df_list))):
@@ -595,22 +593,28 @@ def page_balancer():
     options5 = st.multiselect("参加者", st.session_state.df_player_dict.keys(), [])
     if len(options5) == 10:
         wp = 0.0
-        while wp < 0.4 or wp > 0.6:
+        wp_min = 0.4
+        wp_max = 0.6
+        cnt = 0
+        while wp < wp_min or wp > wp_max:
             options5 = random.sample(options5, 10)
             a = options5[:5]
             b = options5[5:]
-            a_rate = []
-            b_rate = []
             t3 = []
             t4 = []
             for player in a:
-                t3.append(st.session_state.rate_dict[player])
+                t3.append(st.session_state.rate_dict[player][0])
             for player in b:
-                t4.append(st.session_state.rate_dict[player])
+                t4.append(st.session_state.rate_dict[player][0])
             wp = win_probability(t3, t4, env=st.session_state.env)
+            cnt += 1
+            if cnt % 10 == 0:
+                wp_min -= 0.01
+                wp_max += 0.01
 
+        a_rate = []
         for player in a:
-            a_rate.append(st.session_state.rate_dict[player].mu)
+            a_rate.append(st.session_state.rate_dict[player][0].mu)
         a = [i for _, i in sorted(zip(a_rate, a))]
         a_ave_rate = statistics.mean(a_rate)
         a_team_list = ["", "", "", "", ""]
@@ -631,8 +635,9 @@ def page_balancer():
         a_team["mid"] = a_team_list[2]
         a_team["bot"] = a_team_list[3]
         a_team["supp"] = a_team_list[4]
+        b_rate = []
         for player in b:
-            b_rate.append(st.session_state.rate_dict[player].mu)
+            b_rate.append(st.session_state.rate_dict[player][0].mu)
         b = [i for _, i in sorted(zip(a_rate, b))]
         b_ave_rate = statistics.mean(b_rate)
         b_team_list = ["", "", "", "", ""]
