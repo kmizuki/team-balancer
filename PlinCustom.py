@@ -51,7 +51,8 @@ st.set_page_config(
 )
 
 
-def page_record():
+@st.experimental_memo(ttl=600)
+def get_all_record():
     mu = 25.0
     sigma = mu / 3.0
     beta = sigma / 2.0
@@ -325,43 +326,47 @@ def page_record():
     df_all_player = pd.DataFrame(
         index=[], columns=st.session_state.df_player_dict[next(iter(st.session_state.df_player_dict))].columns
     )
-    df_all_dict = {}
+    st.session_state.df_all_dict = {}
     for player in st.session_state.df_player_dict.keys():
         for position in st.session_state.df_player_dict[player].iterrows():
-            if position[0] not in df_all_dict:
-                df_all_dict[position[0]] = df_all_player.copy()
+            if position[0] not in st.session_state.df_all_dict:
+                st.session_state.df_all_dict[position[0]] = df_all_player.copy()
             df_tmp = pd.DataFrame([position[1]], index={player})
-            df_all_dict[position[0]] = pd.concat([df_all_dict[position[0]], df_tmp])
+            st.session_state.df_all_dict[position[0]] = pd.concat([st.session_state.df_all_dict[position[0]], df_tmp])
 
     df_all_champion = pd.DataFrame(
         index=[], columns=st.session_state.df_champion_dict[next(iter(st.session_state.df_champion_dict))].columns
     )
-    df_all_champion_dict = {}
+    st.session_state.df_all_champion_dict = {}
     for champion in st.session_state.df_champion_dict.keys():
         for position in st.session_state.df_champion_dict[champion].iterrows():
-            if position[0] not in df_all_champion_dict:
-                df_all_champion_dict[position[0]] = df_all_champion.copy()
+            if position[0] not in st.session_state.df_all_champion_dict:
+                st.session_state.df_all_champion_dict[position[0]] = df_all_champion.copy()
             df_tmp = pd.DataFrame([position[1]], index={champion})
-            df_all_champion_dict[position[0]] = pd.concat([df_all_champion_dict[position[0]], df_tmp])
+            st.session_state.df_all_champion_dict[position[0]] = pd.concat(
+                [st.session_state.df_all_champion_dict[position[0]], df_tmp]
+            )
 
     df_all_set = pd.DataFrame(
         index=[], columns=st.session_state.df_set_dict[next(iter(st.session_state.df_set_dict))].columns
     )
-    df_all_set_dict = {}
+    st.session_state.df_all_set_dict = {}
     for (player, champion) in st.session_state.df_set_dict.keys():
-        if player not in df_all_set_dict:
-            df_all_set_dict[player] = df_all_set.copy()
-        df_all_set_dict[player] = pd.concat(
+        if player not in st.session_state.df_all_set_dict:
+            st.session_state.df_all_set_dict[player] = df_all_set.copy()
+        st.session_state.df_all_set_dict[player] = pd.concat(
             [
-                df_all_set_dict[player],
+                st.session_state.df_all_set_dict[player],
                 st.session_state.df_set_dict[(player, champion)][:1].rename(index={"all": champion}),
             ]
         )
 
-    for keys in df_all_dict.keys():
-        df_all_dict[keys] = df_all_dict[keys].sort_values("win_rate", ascending=False)
-        df_all_dict[keys] = (
-            df_all_dict[keys]
+    for keys in st.session_state.df_all_dict.keys():
+        st.session_state.df_all_dict[keys] = st.session_state.df_all_dict[keys].sort_values(
+            "win_rate", ascending=False
+        )
+        st.session_state.df_all_dict[keys] = (
+            st.session_state.df_all_dict[keys]
             .style.format(
                 formatter={
                     "match_count": "{:.0f}",
@@ -386,10 +391,12 @@ def page_record():
             .highlight_max(axis=0, subset="cs")
             .highlight_max(axis=0, subset="gold")
         )
-    for keys in df_all_champion_dict.keys():
-        df_all_champion_dict[keys] = df_all_champion_dict[keys].sort_values("match_count", ascending=False)
-        df_all_champion_dict[keys] = (
-            df_all_champion_dict[keys]
+    for keys in st.session_state.df_all_champion_dict.keys():
+        st.session_state.df_all_champion_dict[keys] = st.session_state.df_all_champion_dict[keys].sort_values(
+            "match_count", ascending=False
+        )
+        st.session_state.df_all_champion_dict[keys] = (
+            st.session_state.df_all_champion_dict[keys]
             .style.format(
                 formatter={
                     "match_count": "{:.0f}",
@@ -414,10 +421,12 @@ def page_record():
             .highlight_max(axis=0, subset="cs")
             .highlight_max(axis=0, subset="gold")
         )
-    for keys in df_all_set_dict.keys():
-        df_all_set_dict[keys] = df_all_set_dict[keys].sort_values("match_count", ascending=False)
-        df_all_set_dict[keys] = (
-            df_all_set_dict[keys]
+    for keys in st.session_state.df_all_set_dict.keys():
+        st.session_state.df_all_set_dict[keys] = st.session_state.df_all_set_dict[keys].sort_values(
+            "match_count", ascending=False
+        )
+        st.session_state.df_all_set_dict[keys] = (
+            st.session_state.df_all_set_dict[keys]
             .style.format(
                 formatter={
                     "match_count": "{:.0f}",
@@ -442,11 +451,6 @@ def page_record():
             .highlight_max(axis=0, subset="cs")
             .highlight_max(axis=0, subset="gold")
         )
-
-    st.write("総合戦績")
-    option1 = st.selectbox("ポジションの選択", df_all_dict.keys())
-    st.dataframe(df_all_dict[option1])
-    st.dataframe(df_all_champion_dict[option1])
 
     # フォーマット
     for keys in st.session_state.df_player_dict.keys():
@@ -480,11 +484,20 @@ def page_record():
             na_rep="-",
         )
 
+
+def page_record():
+    get_all_record()
+
+    st.write("総合戦績")
+    option1 = st.selectbox("ポジションの選択", st.session_state.df_all_dict.keys())
+    st.dataframe(st.session_state.df_all_dict[option1])
+    st.dataframe(st.session_state.df_all_champion_dict[option1])
+
     st.write("個人戦績")
     option2 = st.selectbox("プレイヤーの選択", st.session_state.df_player_dict.keys())
 
     st.dataframe(st.session_state.df_player_dict[option2])
-    st.dataframe(df_all_set_dict[option2])
+    st.dataframe(st.session_state.df_all_set_dict[option2])
 
 
 def page_history():
