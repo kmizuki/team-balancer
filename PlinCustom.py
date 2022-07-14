@@ -50,20 +50,8 @@ st.set_page_config(
 )
 
 
-@st.cache(ttl=600)
+@st.experimental_memo(ttl=600)
 def get_all_record():
-    mu = 25.0
-    sigma = mu / 3.0
-    beta = sigma / 2.0
-    tau = sigma / 100.0
-    draw_probability = 0.0
-    backend = None
-
-    st.session_state.env = trueskill.TrueSkill(
-        mu=mu, sigma=sigma, beta=beta, tau=tau, draw_probability=draw_probability, backend=backend
-    )
-    st.session_state.env.make_as_global()
-
     credentials = service_account.Credentials.from_service_account_info(st.secrets["gcp_service_account"])
     client = storage.Client(credentials=credentials)
 
@@ -352,6 +340,47 @@ def get_all_record():
                 st.session_state.df_set_dict[(player, champion)][:1].rename(index={"all": champion}),
             ]
         )
+    return (
+        st.session_state.rate_dict,
+        st.session_state.df_player_dict,
+        st.session_state.df_champion_dict,
+        st.session_state.df_set_dict,
+        st.session_state.df_all_champion_dict,
+        st.session_state.df_all_set_dict,
+        st.session_state.df_all_dict,
+        st.session_state.df_list,
+    )
+
+
+def page_record():
+    mu = 25.0
+    sigma = mu / 3.0
+    beta = sigma / 2.0
+    tau = sigma / 100.0
+    draw_probability = 0.0
+    backend = None
+    st.session_state.env = trueskill.TrueSkill(
+        mu=mu, sigma=sigma, beta=beta, tau=tau, draw_probability=draw_probability, backend=backend
+    )
+    st.session_state.env.make_as_global()
+    st.session_state.rate_dict = {}
+    st.session_state.df_player_dict = {}
+    st.session_state.df_champion_dict = {}
+    st.session_state.df_set_dict = {}
+    st.session_state.df_all_champion_dict = {}
+    st.session_state.df_all_set_dict = {}
+    st.session_state.df_all_dict = {}
+    st.session_state.df_list = []
+    (
+        st.session_state.rate_dict,
+        st.session_state.df_player_dict,
+        st.session_state.df_champion_dict,
+        st.session_state.df_set_dict,
+        st.session_state.df_all_champion_dict,
+        st.session_state.df_all_set_dict,
+        st.session_state.df_all_dict,
+        st.session_state.df_list,
+    ) = get_all_record()
 
     for keys in st.session_state.df_all_dict.keys():
         st.session_state.df_all_dict[keys] = st.session_state.df_all_dict[keys].sort_values(
@@ -475,19 +504,6 @@ def get_all_record():
             },
             na_rep="-",
         )
-
-
-def page_record():
-    st.session_state.rate_dict = {}
-    st.session_state.df_player_dict = {}
-    st.session_state.df_champion_dict = {}
-    st.session_state.df_set_dict = {}
-    st.session_state.df_all_champion_dict = {}
-    st.session_state.df_all_set_dict = {}
-    st.session_state.df_all_dict = {}
-    st.session_state.env = 0
-    st.session_state.df_list = []
-    get_all_record()
 
     if st.session_state.df_all_dict != {}:
         st.write("総合戦績")
