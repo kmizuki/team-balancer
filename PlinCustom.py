@@ -29,7 +29,6 @@ def read_file(bucket_name, file_path, client):
     return content
 
 
-@st.experimental_memo(ttl=600)
 def get_dataframe(_blobs, bucket_name, _client):
     df_list = []
     for blob in _blobs:
