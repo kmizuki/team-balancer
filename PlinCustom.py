@@ -7,6 +7,8 @@ import trueskill
 import itertools
 import math
 from PIL import Image
+import random
+import statistics
 
 
 def win_probability(team1, team2, env=None):
@@ -474,8 +476,9 @@ def page_record():
         )
 
     # フォーマット
+    df_player_dict_styler = {}
     for keys in st.session_state.df_player_dict.keys():
-        st.session_state.df_player_dict[keys] = st.session_state.df_player_dict[keys].style.format(
+        df_player_dict_styler[keys] = st.session_state.df_player_dict[keys].style.format(
             formatter={
                 "win_rate": "{:.2f}",
                 "kill": "{:.1f}",
@@ -511,11 +514,11 @@ def page_record():
         st.dataframe(st.session_state.df_all_dict[option1])
         st.dataframe(st.session_state.df_all_champion_dict[option1])
 
-    if st.session_state.df_player_dict != {}:
+    if df_player_dict_styler != {}:
         st.write("個人戦績")
-        option2 = st.selectbox("プレイヤーの選択", st.session_state.df_player_dict.keys())
+        option2 = st.selectbox("プレイヤーの選択", df_player_dict_styler.keys())
 
-        st.dataframe(st.session_state.df_player_dict[option2])
+        st.dataframe(df_player_dict_styler[option2])
         st.dataframe(st.session_state.df_all_set_dict[option2])
 
 
@@ -569,20 +572,96 @@ def page_history():
 
 
 def page_balancer():
-    st.write("勝率予測")
+    # st.write("勝率予測")
 
-    options3 = st.multiselect("チーム1", st.session_state.df_player_dict.keys(), [])
-    options4 = st.multiselect("チーム2", st.session_state.df_player_dict.keys(), [])
+    # options3 = st.multiselect("チームA", st.session_state.df_player_dict.keys(), [])
+    # options4 = st.multiselect("チームB", st.session_state.df_player_dict.keys(), [])
 
-    t1 = []
-    t2 = []
-    for player in options3:
-        t1.append(st.session_state.rate_dict[player])
-    for player in options4:
-        t2.append(st.session_state.rate_dict[player])
-    if t1 != [] or t2 != []:
-        wp = win_probability(t1, t2, env=st.session_state.env)
-        st.write(f"チーム1の勝率: {wp*100.0:.0f}%")
+    # t1 = []
+    # t2 = []
+    # for player in options3:
+    #     t1.append(st.session_state.rate_dict[player])
+    # for player in options4:
+    #     t2.append(st.session_state.rate_dict[player])
+    # if t1 != [] or t2 != []:
+    #     wp = win_probability(t1, t2, env=st.session_state.env)
+    #     st.write(f"チーム1の勝率: {wp*100.0:.0f}%")
+    #     my_bar = st.progress(0)
+    #     my_bar.progress(wp)
+
+    # st.write("")
+    st.write("自動チーム編成")
+
+    options5 = st.multiselect("参加者", st.session_state.df_player_dict.keys(), [])
+    if len(options5) == 10:
+        wp = 0.0
+        while wp < 0.4 or wp > 0.6:
+            options5 = random.sample(options5, 10)
+            a = options5[:5]
+            b = options5[5:]
+            a_rate = []
+            b_rate = []
+            t3 = []
+            t4 = []
+            for player in a:
+                t3.append(st.session_state.rate_dict[player])
+            for player in b:
+                t4.append(st.session_state.rate_dict[player])
+            wp = win_probability(t3, t4, env=st.session_state.env)
+
+        for player in a:
+            a_rate.append(st.session_state.rate_dict[player].mu)
+        a = [i for _, i in sorted(zip(a_rate, a))]
+        a_ave_rate = statistics.mean(a_rate)
+        a_team_list = ["", "", "", "", ""]
+        a_team = {}
+        for player in a:
+            tmp_list = [0, 1, 2, 3, 4]
+            role_weight = list(st.session_state.df_player_dict[player]["match_count"][:])
+            weight_list = []
+            for i in range(5):
+                weight_list.append(role_weight[i + 1] / role_weight[0])
+            weight_list = [i for _, i in sorted(zip(weight_list, tmp_list), reverse=True)]
+            for i in range(5):
+                if a_team_list[weight_list[i]] == "":
+                    a_team_list[weight_list[i]] = player
+                    break
+        a_team["top"] = a_team_list[0]
+        a_team["jg"] = a_team_list[1]
+        a_team["mid"] = a_team_list[2]
+        a_team["bot"] = a_team_list[3]
+        a_team["supp"] = a_team_list[4]
+        for player in b:
+            b_rate.append(st.session_state.rate_dict[player].mu)
+        b = [i for _, i in sorted(zip(a_rate, b))]
+        b_ave_rate = statistics.mean(b_rate)
+        b_team_list = ["", "", "", "", ""]
+        b_team = {}
+        for player in b:
+            tmp_list = [0, 1, 2, 3, 4]
+            role_weight = list(st.session_state.df_player_dict[player]["match_count"][:])
+            weight_list = []
+            for i in range(5):
+                weight_list.append(role_weight[i + 1] / role_weight[0])
+            weight_list = [i for _, i in sorted(zip(weight_list, tmp_list), reverse=True)]
+            for i in range(5):
+                if b_team_list[weight_list[i]] == "":
+                    b_team_list[weight_list[i]] = player
+                    break
+        b_team["top"] = b_team_list[0]
+        b_team["jg"] = b_team_list[1]
+        b_team["mid"] = b_team_list[2]
+        b_team["bot"] = b_team_list[3]
+        b_team["supp"] = b_team_list[4]
+
+        col1, col2 = st.columns(2)
+        with col1:
+            st.write(f"チームA平均レート: {a_ave_rate:.1f}")
+            st.write(a_team)
+        with col2:
+            st.write(f"チームB平均レート: {b_ave_rate:.1f}")
+            st.write(b_team)
+        st.write(f"勝利予測: {wp*100.0:.0f}%")
         my_bar = st.progress(0)
         my_bar.progress(wp)
 
