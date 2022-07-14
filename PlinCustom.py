@@ -487,16 +487,18 @@ def page_record():
     st.session_state.df_all_dict = {}
     get_all_record()
 
-    st.write("総合戦績")
-    option1 = st.selectbox("ポジションの選択", st.session_state.df_all_dict.keys())
-    st.dataframe(st.session_state.df_all_dict[option1])
-    st.dataframe(st.session_state.df_all_champion_dict[option1])
+    if st.session_state.df_all_dict != {}:
+        st.write("総合戦績")
+        option1 = st.selectbox("ポジションの選択", st.session_state.df_all_dict.keys())
+        st.dataframe(st.session_state.df_all_dict[option1])
+        st.dataframe(st.session_state.df_all_champion_dict[option1])
 
-    st.write("個人戦績")
-    option2 = st.selectbox("プレイヤーの選択", st.session_state.df_player_dict.keys())
+    if st.session_state.df_player_dict != {}:
+        st.write("個人戦績")
+        option2 = st.selectbox("プレイヤーの選択", st.session_state.df_player_dict.keys())
 
-    st.dataframe(st.session_state.df_player_dict[option2])
-    st.dataframe(st.session_state.df_all_set_dict[option2])
+        st.dataframe(st.session_state.df_player_dict[option2])
+        st.dataframe(st.session_state.df_all_set_dict[option2])
 
 
 def page_history():
