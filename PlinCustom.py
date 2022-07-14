@@ -322,7 +322,6 @@ def get_all_record():
     df_all_player = pd.DataFrame(
         index=[], columns=st.session_state.df_player_dict[next(iter(st.session_state.df_player_dict))].columns
     )
-    st.session_state.df_all_dict = {}
     for player in st.session_state.df_player_dict.keys():
         for position in st.session_state.df_player_dict[player].iterrows():
             if position[0] not in st.session_state.df_all_dict:
@@ -486,6 +485,7 @@ def page_record():
     st.session_state.df_set_dict = {}
     st.session_state.df_all_champion_dict = {}
     st.session_state.df_all_set_dict = {}
+    st.session_state.df_all_dict = {}
     get_all_record()
 
     st.write("総合戦績")
