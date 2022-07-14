@@ -64,7 +64,6 @@ def get_all_record():
         mu=mu, sigma=sigma, beta=beta, tau=tau, draw_probability=draw_probability, backend=backend
     )
     st.session_state.env.make_as_global()
-    st.session_state.rate_dict = {}
 
     credentials = service_account.Credentials.from_service_account_info(st.secrets["gcp_service_account"])
     client = storage.Client(credentials=credentials)
@@ -96,9 +95,6 @@ def get_all_record():
     }
     position_idx = ["all", "top", "jg", "mid", "bot", "supp"]
     df_personal = pd.DataFrame(data=match_dict, index=position_idx)
-    st.session_state.df_player_dict = {}
-    st.session_state.df_champion_dict = {}
-    st.session_state.df_set_dict = {}
     st.session_state.df_list = get_dataframe(blobs, bucket_name, client)
     for df in st.session_state.df_list:
         team1 = {}
@@ -337,7 +333,6 @@ def get_all_record():
     df_all_champion = pd.DataFrame(
         index=[], columns=st.session_state.df_champion_dict[next(iter(st.session_state.df_champion_dict))].columns
     )
-    st.session_state.df_all_champion_dict = {}
     for champion in st.session_state.df_champion_dict.keys():
         for position in st.session_state.df_champion_dict[champion].iterrows():
             if position[0] not in st.session_state.df_all_champion_dict:
@@ -350,7 +345,6 @@ def get_all_record():
     df_all_set = pd.DataFrame(
         index=[], columns=st.session_state.df_set_dict[next(iter(st.session_state.df_set_dict))].columns
     )
-    st.session_state.df_all_set_dict = {}
     for (player, champion) in st.session_state.df_set_dict.keys():
         if player not in st.session_state.df_all_set_dict:
             st.session_state.df_all_set_dict[player] = df_all_set.copy()
@@ -486,6 +480,12 @@ def get_all_record():
 
 
 def page_record():
+    st.session_state.rate_dict = {}
+    st.session_state.df_player_dict = {}
+    st.session_state.df_champion_dict = {}
+    st.session_state.df_set_dict = {}
+    st.session_state.df_all_champion_dict = {}
+    st.session_state.df_all_set_dict = {}
     get_all_record()
 
     st.write("総合戦績")
