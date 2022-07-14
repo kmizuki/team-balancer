@@ -638,7 +638,7 @@ def page_balancer():
         b_rate = []
         for player in b:
             b_rate.append(st.session_state.rate_dict[player][0].mu)
-        b = [i for _, i in sorted(zip(a_rate, b))]
+        b = [i for _, i in sorted(zip(b_rate, b))]
         b_ave_rate = statistics.mean(b_rate)
         b_team_list = ["", "", "", "", ""]
         b_team = {}
