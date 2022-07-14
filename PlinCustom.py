@@ -597,9 +597,11 @@ selected_page = st.sidebar.radio("Menu", ["Record", "History", "Balancer", "Benz
 if selected_page == "Record":
     page_record()
 elif selected_page == "History":
-    page_history()
+    if st.session_state.df_list != []:
+        page_history()
 elif selected_page == "Balancer":
-    page_balancer()
+    if st.session_state.df_player_dict != {}:
+        page_balancer()
 elif selected_page == "Benzaiten":
     page_benzaiten()
 else:
