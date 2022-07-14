@@ -582,7 +582,9 @@ def page_balancer():
         t2.append(st.session_state.rate_dict[player])
     if t1 != [] or t2 != []:
         wp = win_probability(t1, t2, env=st.session_state.env)
-        st.write(f"チーム1の勝率: {wp*100.0:.2f}%")
+        st.write(f"チーム1の勝率: {wp*100.0:.0f}%")
+        my_bar = st.progress(0)
+        my_bar.progress(wp)
 
 
 def page_benzaiten():
