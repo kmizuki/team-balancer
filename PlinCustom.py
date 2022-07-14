@@ -485,6 +485,8 @@ def page_record():
     st.session_state.df_all_champion_dict = {}
     st.session_state.df_all_set_dict = {}
     st.session_state.df_all_dict = {}
+    st.session_state.env = 0
+    st.session_state.df_list = []
     get_all_record()
 
     if st.session_state.df_all_dict != {}:
