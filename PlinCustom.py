@@ -50,7 +50,7 @@ st.set_page_config(
 )
 
 
-@st.experimental_memo(ttl=600)
+@st.cache(ttl=600)
 def get_all_record():
     mu = 25.0
     sigma = mu / 3.0
