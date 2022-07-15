@@ -1,3 +1,4 @@
+from turtle import color
 import streamlit as st
 from google.oauth2 import service_account
 from google.cloud import storage
@@ -389,13 +390,13 @@ def page_record():
                     },
                     na_rep="-",
                 )
-                .highlight_max(axis=0, subset="win_rate")
-                .highlight_max(axis=0, subset="kill")
-                .highlight_min(axis=0, subset="death")
-                .highlight_max(axis=0, subset="assist")
-                .highlight_max(axis=0, subset="kda")
-                .highlight_max(axis=0, subset="cs")
-                .highlight_max(axis=0, subset="gold")
+                .highlight_max(axis=0, subset="win_rate", color="green")
+                .highlight_max(axis=0, subset="kill", color="green")
+                .highlight_min(axis=0, subset="death", color="green")
+                .highlight_max(axis=0, subset="assist", color="green")
+                .highlight_max(axis=0, subset="kda", color="green")
+                .highlight_max(axis=0, subset="cs", color="green")
+                .highlight_max(axis=0, subset="gold", color="green")
             )
         df_all_champion_dict_styler = {}
         for keys in st.session_state.df_all_champion_dict.keys():
@@ -451,13 +452,13 @@ def page_record():
                     },
                     na_rep="-",
                 )
-                .highlight_max(axis=0, subset="win_rate")
-                .highlight_max(axis=0, subset="kill")
-                .highlight_min(axis=0, subset="death")
-                .highlight_max(axis=0, subset="assist")
-                .highlight_max(axis=0, subset="kda")
-                .highlight_max(axis=0, subset="cs")
-                .highlight_max(axis=0, subset="gold")
+                .highlight_max(axis=0, subset="win_rate", color="green")
+                .highlight_max(axis=0, subset="kill", color="green")
+                .highlight_min(axis=0, subset="death", color="green")
+                .highlight_max(axis=0, subset="assist", color="green")
+                .highlight_max(axis=0, subset="kda", color="green")
+                .highlight_max(axis=0, subset="cs", color="green")
+                .highlight_max(axis=0, subset="gold", color="green")
             )
 
         # フォーマット
