@@ -9,6 +9,7 @@ import math
 from PIL import Image
 import random
 import statistics
+import matplotlib.pyplot as plt
 
 
 def win_probability(team1, team2, env=None):
@@ -507,8 +508,20 @@ def page_record():
             st.dataframe(df_all_set_dict_styler[option2])
 
             st.write("レート変動")
-            chart_data = pd.DataFrame(st.session_state.rate_dict[option2][::-1], columns=["期待値", "標準偏差"])
-            st.line_chart(chart_data)
+            mu_list = [mu for mu, _ in st.session_state.rate_dict[option2]]
+            mu_list.reverse()
+            sigma_list = [sigma for _, sigma in st.session_state.rate_dict[option2]]
+            sigma_list.reverse()
+            match_cnt_list = [i for i in range(len(st.session_state.rate_dict[option2]))]
+            fig, ax = plt.subplots()
+            ax.plot(match_cnt_list, mu_list)
+            ax.errorbar(match_cnt_list, mu_list, yerr=sigma_list, fmt="o")
+            ax.set_xlabel("match count")
+            ax.set_ylabel("rating")
+            ax.set_ylim(0, 50)
+            ax.grid(axis="y")
+            ax.set_yticks([i for i in range(50) if i % 5 == 0])
+            st.pyplot(fig)
 
 
 def page_history():
