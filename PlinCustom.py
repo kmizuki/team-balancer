@@ -570,24 +570,6 @@ def page_history():
 
 
 def page_balancer():
-    # st.write("勝率予測")
-
-    # options3 = st.multiselect("チームA", st.session_state.df_player_dict.keys(), [])
-    # options4 = st.multiselect("チームB", st.session_state.df_player_dict.keys(), [])
-
-    # t1 = []
-    # t2 = []
-    # for player in options3:
-    #     t1.append(st.session_state.rate_dict[player])
-    # for player in options4:
-    #     t2.append(st.session_state.rate_dict[player])
-    # if t1 != [] or t2 != []:
-    #     wp = win_probability(t1, t2, env=st.session_state.env)
-    #     st.write(f"チーム1の勝率: {wp*100.0:.0f}%")
-    #     my_bar = st.progress(0)
-    #     my_bar.progress(wp)
-
-    # st.write("")
     position_priority = {
         "弁財天": [3, 0, 4, 1, 2],
         "ヤングマン": [4, 2, 1, 0, 3],
@@ -628,70 +610,50 @@ def page_balancer():
             if cnt % 10 == 0:
                 wp_min -= 0.01
                 wp_max += 0.01
-
-        a_rate = []
-        for player in a:
-            a_rate.append(st.session_state.rate_dict[player][0].mu)
-        a = [i for _, i in sorted(zip(a_rate, a))]
-        a_ave_rate = statistics.mean(a_rate)
-        a_team_list = ["", "", "", "", ""]
-        a_team = {}
-        for player in a:
-            tmp_list = [0, 1, 2, 3, 4]
-            if player in position_priority.keys():
-                tmp_list = [i for _, i in sorted(zip(position_priority[player], tmp_list))]
-            else:
-                role_weight = list(st.session_state.df_player_dict[player]["match_count"][:])
-                weight_list = []
+        teams = [a, b]
+        team_dict_list = []
+        ave_rate = []
+        for team in teams:
+            rate = []
+            team_dict = {}
+            for player in team:
+                rate.append(st.session_state.rate_dict[player][0].mu)
+            team = [i for _, i in sorted(zip(rate, team))]
+            ave_rate.append(statistics.mean(rate))
+            team_list = ["", "", "", "", ""]
+            for player in team:
+                tmp_list = [0, 1, 2, 3, 4]
+                if player in position_priority.keys():
+                    tmp_list = [i for _, i in sorted(zip(position_priority[player], tmp_list))]
+                else:
+                    role_weight = list(st.session_state.df_player_dict[player]["match_count"][:])
+                    weight_list = []
+                    for i in range(5):
+                        weight_list.append(role_weight[i + 1] / role_weight[0])
+                    tmp_list = [i for _, i in sorted(zip(weight_list, tmp_list), reverse=True)]
                 for i in range(5):
-                    weight_list.append(role_weight[i + 1] / role_weight[0])
-                tmp_list = [i for _, i in sorted(zip(weight_list, tmp_list), reverse=True)]
-            for i in range(5):
-                if a_team_list[tmp_list[i]] == "":
-                    a_team_list[tmp_list[i]] = player
-                    break
-        a_team["top"] = a_team_list[0]
-        a_team["jg"] = a_team_list[1]
-        a_team["mid"] = a_team_list[2]
-        a_team["bot"] = a_team_list[3]
-        a_team["supp"] = a_team_list[4]
-        b_rate = []
-        for player in b:
-            b_rate.append(st.session_state.rate_dict[player][0].mu)
-        b = [i for _, i in sorted(zip(b_rate, b))]
-        b_ave_rate = statistics.mean(b_rate)
-        b_team_list = ["", "", "", "", ""]
-        b_team = {}
-        for player in b:
-            tmp_list = [0, 1, 2, 3, 4]
-            if player in position_priority.keys():
-                tmp_list = [i for _, i in sorted(zip(position_priority[player], tmp_list))]
-            else:
-                role_weight = list(st.session_state.df_player_dict[player]["match_count"][:])
-                weight_list = []
-                for i in range(5):
-                    weight_list.append(role_weight[i + 1] / role_weight[0])
-                tmp_list = [i for _, i in sorted(zip(weight_list, tmp_list), reverse=True)]
-            for i in range(5):
-                if b_team_list[tmp_list[i]] == "":
-                    b_team_list[tmp_list[i]] = player
-                    break
-        b_team["top"] = b_team_list[0]
-        b_team["jg"] = b_team_list[1]
-        b_team["mid"] = b_team_list[2]
-        b_team["bot"] = b_team_list[3]
-        b_team["supp"] = b_team_list[4]
+                    if team_list[tmp_list[i]] == "":
+                        team_list[tmp_list[i]] = player
+                        break
+            team_dict["top"] = team_list[0]
+            team_dict["jg"] = team_list[1]
+            team_dict["mid"] = team_list[2]
+            team_dict["bot"] = team_list[3]
+            team_dict["supp"] = team_list[4]
+            team_dict_list.append(team_dict)
 
         col1, col2 = st.columns(2)
         with col1:
-            st.write(f"チームA平均レート: {a_ave_rate:.1f}")
-            st.write(a_team)
+            st.write(f"チームA平均レート: {ave_rate[0]:.1f}")
+            st.write(team_dict_list[0])
         with col2:
-            st.write(f"チームB平均レート: {b_ave_rate:.1f}")
-            st.write(b_team)
+            st.write(f"チームB平均レート: {ave_rate[1]:.1f}")
+            st.write(team_dict_list[1])
         st.write(f"勝利予測: {wp*100.0:.0f}%")
         my_bar = st.progress(0)
         my_bar.progress(wp)
+    else:
+        st.write(f"{len(options5)} / 10")
 
 
 def page_benzaiten():
