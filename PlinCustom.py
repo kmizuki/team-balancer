@@ -389,14 +389,13 @@ def page_record():
                     },
                     na_rep="-",
                 )
-                .highlight_max(axis=0, subset="win_rate")
+                .highlight_max(axis=0, subset="win_rate", color="red")
                 .highlight_max(axis=0, subset="kill")
                 .highlight_min(axis=0, subset="death")
                 .highlight_max(axis=0, subset="assist")
                 .highlight_max(axis=0, subset="kda")
                 .highlight_max(axis=0, subset="cs")
                 .highlight_max(axis=0, subset="gold")
-                .set_properties(**{"background-color": "green"})
             )
         df_all_champion_dict_styler = {}
         for keys in st.session_state.df_all_champion_dict.keys():
@@ -427,7 +426,6 @@ def page_record():
                 .highlight_max(axis=0, subset="kda")
                 .highlight_max(axis=0, subset="cs")
                 .highlight_max(axis=0, subset="gold")
-                .set_properties(**{"background-color": "green"})
             )
         df_all_set_dict_styler = {}
         for keys in st.session_state.df_all_set_dict.keys():
@@ -458,7 +456,6 @@ def page_record():
                 .highlight_max(axis=0, subset="kda")
                 .highlight_max(axis=0, subset="cs")
                 .highlight_max(axis=0, subset="gold")
-                .set_properties(**{"background-color": "green"})
             )
 
         # フォーマット
