@@ -354,22 +354,15 @@ def get_all_record():
                 st.session_state.df_set_dict[(player, champion)][:1].rename(index={"all": champion}),
             ]
         )
-    return (
-        st.session_state.rate_dict,
-        st.session_state.df_player_dict,
-        st.session_state.df_champion_dict,
-        st.session_state.df_set_dict,
-        st.session_state.df_all_champion_dict,
-        st.session_state.df_all_set_dict,
-        st.session_state.df_all_dict,
-        st.session_state.df_list,
-    )
 
 
 def page_record():
     if st.button("データ更新"):
         st.experimental_memo.clear()
-    get_all_record()
+        get_all_record()
+    if "df_all_dict" not in st.session_state:
+        st.experimental_memo.clear()
+        get_all_record()
 
     if "df_all_dict" in st.session_state:
         df_all_dict_styler = {}
@@ -522,6 +515,9 @@ def page_history():
     if st.button("データ更新"):
         st.experimental_memo.clear()
         get_all_record()
+    if "df_list" not in st.session_state:
+        st.experimental_memo.clear()
+        get_all_record()
     if "df_list" in st.session_state:
         i = len(list(st.session_state.df_list))
         for df in reversed(list(st.session_state.df_list)):
@@ -575,6 +571,9 @@ def page_history():
 
 def page_balancer():
     if st.button("データ更新"):
+        st.experimental_memo.clear()
+        get_all_record()
+    if "df_player_dict" not in st.session_state:
         st.experimental_memo.clear()
         get_all_record()
     if "df_player_dict" in st.session_state:
