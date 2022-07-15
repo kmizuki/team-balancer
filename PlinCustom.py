@@ -523,8 +523,9 @@ def page_history():
         st.experimental_memo.clear()
         get_all_record()
     if "df_list" in st.session_state:
-        for i, df in enumerate(reversed(list(st.session_state.df_list))):
-            st.write(f"match {i+1}")
+        i = len(list(st.session_state.df_list))
+        for df in reversed(list(st.session_state.df_list)):
+            st.write(f"match {i}")
             df = df.set_index("player", drop=False)
             df = df.rename(
                 columns={
@@ -569,6 +570,7 @@ def page_history():
             df2 = df2.style.format(formatter={"kda": "{:.2f}"})
             st.table(df1)
             st.table(df2)
+            i -= 1
 
 
 def page_balancer():
