@@ -389,13 +389,14 @@ def page_record():
                     },
                     na_rep="-",
                 )
-                .highlight_max(axis=0, subset="win_rate", color="green")
-                .highlight_max(axis=0, subset="kill", color="green")
-                .highlight_min(axis=0, subset="death", color="green")
-                .highlight_max(axis=0, subset="assist", color="green")
-                .highlight_max(axis=0, subset="kda", color="green")
-                .highlight_max(axis=0, subset="cs", color="green")
-                .highlight_max(axis=0, subset="gold", color="green")
+                # .highlight_max(axis=0, subset="win_rate", color="red")
+                .background_gradient(axis=0, cmap="Greens", low=0.0, high=1.0)
+                .highlight_max(axis=0, subset="kill", color="red")
+                .highlight_min(axis=0, subset="death", color="red")
+                .highlight_max(axis=0, subset="assist", color="red")
+                .highlight_max(axis=0, subset="kda", color="red")
+                .highlight_max(axis=0, subset="cs", color="red")
+                .highlight_max(axis=0, subset="gold", color="red")
             )
         df_all_champion_dict_styler = {}
         for keys in st.session_state.df_all_champion_dict.keys():
@@ -420,13 +421,13 @@ def page_record():
                     },
                     na_rep="-",
                 )
-                .highlight_max(axis=0, subset="win_rate", color="green")
-                .highlight_max(axis=0, subset="kill", color="green")
-                .highlight_min(axis=0, subset="death", color="green")
-                .highlight_max(axis=0, subset="assist", color="green")
-                .highlight_max(axis=0, subset="kda", color="green")
-                .highlight_max(axis=0, subset="cs", color="green")
-                .highlight_max(axis=0, subset="gold", color="green")
+                .highlight_max(axis=0, subset="win_rate", color="red")
+                .highlight_max(axis=0, subset="kill", color="red")
+                .highlight_min(axis=0, subset="death", color="red")
+                .highlight_max(axis=0, subset="assist", color="red")
+                .highlight_max(axis=0, subset="kda", color="red")
+                .highlight_max(axis=0, subset="cs", color="red")
+                .highlight_max(axis=0, subset="gold", color="red")
             )
         df_all_set_dict_styler = {}
         for keys in st.session_state.df_all_set_dict.keys():
@@ -451,13 +452,13 @@ def page_record():
                     },
                     na_rep="-",
                 )
-                .highlight_max(axis=0, subset="win_rate", color="green")
-                .highlight_max(axis=0, subset="kill", color="green")
-                .highlight_min(axis=0, subset="death", color="green")
-                .highlight_max(axis=0, subset="assist", color="green")
-                .highlight_max(axis=0, subset="kda", color="green")
-                .highlight_max(axis=0, subset="cs", color="green")
-                .highlight_max(axis=0, subset="gold", color="green")
+                .highlight_max(axis=0, subset="win_rate", color="red")
+                .highlight_max(axis=0, subset="kill", color="red")
+                .highlight_min(axis=0, subset="death", color="red")
+                .highlight_max(axis=0, subset="assist", color="red")
+                .highlight_max(axis=0, subset="kda", color="red")
+                .highlight_max(axis=0, subset="cs", color="red")
+                .highlight_max(axis=0, subset="gold", color="red")
             )
 
         # フォーマット
