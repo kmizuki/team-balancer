@@ -588,7 +588,23 @@ def page_balancer():
     #     my_bar.progress(wp)
 
     # st.write("")
-    st.write("自動チーム編成")
+    position_priority = {
+        "弁財天": [3, 0, 4, 1, 2],
+        "ヤングマン": [4, 2, 1, 0, 3],
+        "ML狼": [4, 3, 0, 2, 1],
+        "miz0chi": [1, 2, 4, 3, 0],
+        "のっぺぃ": [4, 0, 1, 2, 3],
+        "Пудинг": [0, 2, 1, 3, 4],
+        "Raraku": [3, 1, 2, 4, 0],
+        "GaHaHaCiK": [1, 2, 3, 0, 4],
+        "Dan14": [0, 1, 2, 4, 3],
+        "Nitorite": [3, 4, 0, 1, 2],
+        "サイファ": [0, 1, 4, 3, 2],
+        "HAROZ100": [0, 1, 4, 2, 3],
+        "zridalma": [1, 0, 3, 4, 2],
+        "soutou": [1, 2, 4, 0, 3],
+    }
+    st.write("チームバランサー")
 
     options5 = st.multiselect("参加者", st.session_state.df_player_dict.keys(), [])
     if len(options5) == 10:
@@ -621,14 +637,17 @@ def page_balancer():
         a_team = {}
         for player in a:
             tmp_list = [0, 1, 2, 3, 4]
-            role_weight = list(st.session_state.df_player_dict[player]["match_count"][:])
-            weight_list = []
+            if player in position_priority.keys():
+                tmp_list = [i for _, i in sorted(zip(position_priority[player], tmp_list))]
+            else:
+                role_weight = list(st.session_state.df_player_dict[player]["match_count"][:])
+                weight_list = []
+                for i in range(5):
+                    weight_list.append(role_weight[i + 1] / role_weight[0])
+                tmp_list = [i for _, i in sorted(zip(weight_list, tmp_list), reverse=True)]
             for i in range(5):
-                weight_list.append(role_weight[i + 1] / role_weight[0])
-            weight_list = [i for _, i in sorted(zip(weight_list, tmp_list), reverse=True)]
-            for i in range(5):
-                if a_team_list[weight_list[i]] == "":
-                    a_team_list[weight_list[i]] = player
+                if a_team_list[tmp_list[i]] == "":
+                    a_team_list[tmp_list[i]] = player
                     break
         a_team["top"] = a_team_list[0]
         a_team["jg"] = a_team_list[1]
@@ -644,14 +663,17 @@ def page_balancer():
         b_team = {}
         for player in b:
             tmp_list = [0, 1, 2, 3, 4]
-            role_weight = list(st.session_state.df_player_dict[player]["match_count"][:])
-            weight_list = []
+            if player in position_priority.keys():
+                tmp_list = [i for _, i in sorted(zip(position_priority[player], tmp_list))]
+            else:
+                role_weight = list(st.session_state.df_player_dict[player]["match_count"][:])
+                weight_list = []
+                for i in range(5):
+                    weight_list.append(role_weight[i + 1] / role_weight[0])
+                tmp_list = [i for _, i in sorted(zip(weight_list, tmp_list), reverse=True)]
             for i in range(5):
-                weight_list.append(role_weight[i + 1] / role_weight[0])
-            weight_list = [i for _, i in sorted(zip(weight_list, tmp_list), reverse=True)]
-            for i in range(5):
-                if b_team_list[weight_list[i]] == "":
-                    b_team_list[weight_list[i]] = player
+                if b_team_list[tmp_list[i]] == "":
+                    b_team_list[tmp_list[i]] = player
                     break
         b_team["top"] = b_team_list[0]
         b_team["jg"] = b_team_list[1]
