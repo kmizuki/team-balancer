@@ -60,7 +60,7 @@ def get_all_record():
     bucket_name = "custom-match-history"
     blobs = get_blobs(bucket_name, client)
 
-    name_dict = {"弁天町5520001": "弁財天", "弁天魚のムニエル": "弁財天", "ナウナヤングマン": "ヤングマン"}
+    name_dict = {"弁天町5520001": "弁財天", "弁天魚のムニエル": "弁財天", "ナウナヤングマン": "ヤングマン", "Пудинг": "魔法少女ぷりん"}
 
     match_dict = dict(
         match_count=[0, 0, 0, 0, 0, 0],
@@ -593,7 +593,7 @@ def page_balancer():
         "ヤングマン": [4, 2, 1, 0, 3],
         "ML狼": [4, 3, 0, 2, 1],
         "miz0chi": [1, 2, 4, 3, 0],
-        "のっぺぃ": [4, 0, 1, 2, 3],
+        "のっぺぃ": [2, 0, 1, 4, 3],
         "Пудинг": [0, 2, 1, 3, 4],
         "Raraku": [3, 1, 2, 4, 0],
         "GaHaHaCiK": [1, 2, 3, 0, 4],
@@ -608,6 +608,7 @@ def page_balancer():
 
     options5 = st.multiselect("参加者", st.session_state.df_player_dict.keys(), [])
     if len(options5) == 10:
+        st.button("再振り分け")
         wp = 0.0
         wp_min = 0.4
         wp_max = 0.6
