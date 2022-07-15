@@ -372,8 +372,7 @@ def page_record():
                 "win_rate", ascending=False
             )
             df_all_dict_styler[keys] = (
-                st.session_state.df_all_dict[keys]
-                .style.format(
+                st.session_state.df_all_dict[keys].style.format(
                     formatter={
                         "match_count": "{:.0f}",
                         "win_count": "{:.0f}",
@@ -403,8 +402,7 @@ def page_record():
                 "match_count", ascending=False
             )
             df_all_champion_dict_styler[keys] = (
-                st.session_state.df_all_champion_dict[keys]
-                .style.format(
+                st.session_state.df_all_champion_dict[keys].style.format(
                     formatter={
                         "match_count": "{:.0f}",
                         "win_count": "{:.0f}",
@@ -434,8 +432,7 @@ def page_record():
                 "match_count", ascending=False
             )
             df_all_set_dict_styler[keys] = (
-                st.session_state.df_all_set_dict[keys]
-                .style.format(
+                st.session_state.df_all_set_dict[keys].style.format(
                     formatter={
                         "match_count": "{:.0f}",
                         "win_count": "{:.0f}",
@@ -595,7 +592,7 @@ def page_balancer():
             "ヤングマン": [4, 1, 2, 0, 3],
             "ML狼": [4, 3, 0, 2, 1],
             "miz0chi": [1, 2, 4, 3, 0],
-            "のっぺぃ": [2, 0, 1, 4, 3],
+            "のっぺぃ": [0, 3, 2, 4, 1],
             "Пудинг": [0, 2, 1, 3, 4],
             "Raraku": [3, 1, 2, 4, 0],
             "GaHaHaCiK": [1, 2, 3, 0, 4],
@@ -605,6 +602,8 @@ def page_balancer():
             "HAROZ100": [0, 4, 2, 3, 1],
             "zridalma": [1, 0, 3, 4, 2],
             "soutou": [1, 2, 4, 0, 3],
+            "workman0215": [1, 4, 0, 3, 2],
+            "Ñight": [1, 4, 3, 2, 0],
         }
         st.write("チームバランサー")
 
