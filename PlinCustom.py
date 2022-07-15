@@ -389,13 +389,13 @@ def page_record():
                     },
                     na_rep="-",
                 )
-                .highlight_max(axis=0, subset="win_rate", color="red")
-                .highlight_max(axis=0, subset="kill")
-                .highlight_min(axis=0, subset="death")
-                .highlight_max(axis=0, subset="assist")
-                .highlight_max(axis=0, subset="kda")
-                .highlight_max(axis=0, subset="cs")
-                .highlight_max(axis=0, subset="gold")
+                .highlight_max(axis=0, subset="win_rate", color="green")
+                .highlight_max(axis=0, subset="kill", color="green")
+                .highlight_min(axis=0, subset="death", color="green")
+                .highlight_max(axis=0, subset="assist", color="green")
+                .highlight_max(axis=0, subset="kda", color="green")
+                .highlight_max(axis=0, subset="cs", color="green")
+                .highlight_max(axis=0, subset="gold", color="green")
             )
         df_all_champion_dict_styler = {}
         for keys in st.session_state.df_all_champion_dict.keys():
@@ -403,7 +403,8 @@ def page_record():
                 "match_count", ascending=False
             )
             df_all_champion_dict_styler[keys] = (
-                st.session_state.df_all_champion_dict[keys].style.format(
+                st.session_state.df_all_champion_dict[keys]
+                .style.format(
                     formatter={
                         "match_count": "{:.0f}",
                         "win_count": "{:.0f}",
@@ -419,13 +420,13 @@ def page_record():
                     },
                     na_rep="-",
                 )
-                .highlight_max(axis=0, subset="win_rate")
-                .highlight_max(axis=0, subset="kill")
-                .highlight_min(axis=0, subset="death")
-                .highlight_max(axis=0, subset="assist")
-                .highlight_max(axis=0, subset="kda")
-                .highlight_max(axis=0, subset="cs")
-                .highlight_max(axis=0, subset="gold")
+                .highlight_max(axis=0, subset="win_rate", color="green")
+                .highlight_max(axis=0, subset="kill", color="green")
+                .highlight_min(axis=0, subset="death", color="green")
+                .highlight_max(axis=0, subset="assist", color="green")
+                .highlight_max(axis=0, subset="kda", color="green")
+                .highlight_max(axis=0, subset="cs", color="green")
+                .highlight_max(axis=0, subset="gold", color="green")
             )
         df_all_set_dict_styler = {}
         for keys in st.session_state.df_all_set_dict.keys():
@@ -433,7 +434,8 @@ def page_record():
                 "match_count", ascending=False
             )
             df_all_set_dict_styler[keys] = (
-                st.session_state.df_all_set_dict[keys].style.format(
+                st.session_state.df_all_set_dict[keys]
+                .style.format(
                     formatter={
                         "match_count": "{:.0f}",
                         "win_count": "{:.0f}",
@@ -449,13 +451,13 @@ def page_record():
                     },
                     na_rep="-",
                 )
-                .highlight_max(axis=0, subset="win_rate")
-                .highlight_max(axis=0, subset="kill")
-                .highlight_min(axis=0, subset="death")
-                .highlight_max(axis=0, subset="assist")
-                .highlight_max(axis=0, subset="kda")
-                .highlight_max(axis=0, subset="cs")
-                .highlight_max(axis=0, subset="gold")
+                .highlight_max(axis=0, subset="win_rate", color="green")
+                .highlight_max(axis=0, subset="kill", color="green")
+                .highlight_min(axis=0, subset="death", color="green")
+                .highlight_max(axis=0, subset="assist", color="green")
+                .highlight_max(axis=0, subset="kda", color="green")
+                .highlight_max(axis=0, subset="cs", color="green")
+                .highlight_max(axis=0, subset="gold", color="green")
             )
 
         # フォーマット
