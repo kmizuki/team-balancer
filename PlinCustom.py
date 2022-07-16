@@ -390,7 +390,7 @@ def page_record():
                     na_rep="-",
                 )
                 # .highlight_max(axis=0, subset="win_rate", color="red")
-                .background_gradient(axis=0, subset="win_rate", cmap="Greens")
+                .background_gradient(axis=0, subset="win_rate", cmap="RdYIGn")
                 .background_gradient(axis=0, subset="kill", cmap="Greens")
                 .background_gradient(axis=0, subset="death", cmap="Greens_r")
                 .background_gradient(axis=0, subset="assist", cmap="Greens")
