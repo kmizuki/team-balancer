@@ -390,13 +390,13 @@ def page_record():
                     na_rep="-",
                 )
                 # .highlight_max(axis=0, subset="win_rate", color="red")
-                .background_gradient(axis=0, subset="win_rate", cmap="RdYIGn")
-                .background_gradient(axis=0, subset="kill", cmap="Greens")
-                .background_gradient(axis=0, subset="death", cmap="Greens_r")
-                .background_gradient(axis=0, subset="assist", cmap="Greens")
-                .background_gradient(axis=0, subset="kda", cmap="Greens")
-                .background_gradient(axis=0, subset="cs", cmap="Greens")
-                .background_gradient(axis=0, subset="gold", cmap="Greens")
+                .background_gradient(axis=0, subset="win_rate", cmap="RdYlGn")
+                .background_gradient(axis=0, subset="kill", cmap="RdYlGn")
+                .background_gradient(axis=0, subset="death", cmap="RdYlGn_r")
+                .background_gradient(axis=0, subset="assist", cmap="RdYlGn")
+                .background_gradient(axis=0, subset="kda", cmap="RdYlGn")
+                .background_gradient(axis=0, subset="cs", cmap="RdYlGn")
+                .background_gradient(axis=0, subset="gold", cmap="RdYlGn")
             )
         df_all_champion_dict_styler = {}
         for keys in st.session_state.df_all_champion_dict.keys():
