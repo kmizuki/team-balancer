@@ -389,7 +389,6 @@ def page_record():
                     },
                     na_rep="-",
                 )
-                # .highlight_max(axis=0, subset="win_rate", color="red")
                 .background_gradient(axis=0, subset="win_rate", cmap="RdYlGn")
                 .background_gradient(axis=0, subset="kill", cmap="RdYlGn")
                 .background_gradient(axis=0, subset="death", cmap="RdYlGn_r")
@@ -421,13 +420,13 @@ def page_record():
                     },
                     na_rep="-",
                 )
-                .highlight_max(axis=0, subset="win_rate", color="red")
-                .highlight_max(axis=0, subset="kill", color="red")
-                .highlight_min(axis=0, subset="death", color="red")
-                .highlight_max(axis=0, subset="assist", color="red")
-                .highlight_max(axis=0, subset="kda", color="red")
-                .highlight_max(axis=0, subset="cs", color="red")
-                .highlight_max(axis=0, subset="gold", color="red")
+                .background_gradient(axis=0, subset="win_rate", cmap="RdYlGn")
+                .background_gradient(axis=0, subset="kill", cmap="RdYlGn")
+                .background_gradient(axis=0, subset="death", cmap="RdYlGn_r")
+                .background_gradient(axis=0, subset="assist", cmap="RdYlGn")
+                .background_gradient(axis=0, subset="kda", cmap="RdYlGn")
+                .background_gradient(axis=0, subset="cs", cmap="RdYlGn")
+                .background_gradient(axis=0, subset="gold", cmap="RdYlGn")
             )
         df_all_set_dict_styler = {}
         for keys in st.session_state.df_all_set_dict.keys():
@@ -452,13 +451,6 @@ def page_record():
                     },
                     na_rep="-",
                 )
-                .highlight_max(axis=0, subset="win_rate", color="red")
-                .highlight_max(axis=0, subset="kill", color="red")
-                .highlight_min(axis=0, subset="death", color="red")
-                .highlight_max(axis=0, subset="assist", color="red")
-                .highlight_max(axis=0, subset="kda", color="red")
-                .highlight_max(axis=0, subset="cs", color="red")
-                .highlight_max(axis=0, subset="gold", color="red")
             )
 
         # フォーマット
