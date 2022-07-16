@@ -255,7 +255,7 @@ def get_all_record():
         st.session_state.df_player_dict[player_name]["kda"] = (
             st.session_state.df_player_dict[player_name]["kill"]
             + st.session_state.df_player_dict[player_name]["assist"]
-        ) / st.session_state.df_player_dict[player_name]["death"]
+        ) / [x if x != 0 else 1 for x in st.session_state.df_player_dict[player_name]["death"]]
         st.session_state.df_player_dict[player_name]["cs"] /= st.session_state.df_player_dict[player_name][
             "match_count"
         ]
@@ -282,7 +282,7 @@ def get_all_record():
         st.session_state.df_champion_dict[champion_name]["kda"] = (
             st.session_state.df_champion_dict[champion_name]["kill"]
             + st.session_state.df_champion_dict[champion_name]["assist"]
-        ) / st.session_state.df_champion_dict[champion_name]["death"]
+        ) / [x if x != 0 else 1 for x in st.session_state.df_champion_dict[champion_name]["death"]]
         st.session_state.df_champion_dict[champion_name]["cs"] /= st.session_state.df_champion_dict[champion_name][
             "match_count"
         ]
@@ -309,7 +309,7 @@ def get_all_record():
         st.session_state.df_set_dict[(player_name, champion_name)]["kda"] = (
             st.session_state.df_set_dict[(player_name, champion_name)]["kill"]
             + st.session_state.df_set_dict[(player_name, champion_name)]["assist"]
-        ) / st.session_state.df_set_dict[(player_name, champion_name)]["death"]
+        ) / [x if x != 0 else 1 for x in st.session_state.df_set_dict[(player_name, champion_name)]["death"]]
         st.session_state.df_set_dict[(player_name, champion_name)]["cs"] /= st.session_state.df_set_dict[
             (player_name, champion_name)
         ]["match_count"]
@@ -393,7 +393,7 @@ def page_record():
                 .background_gradient(axis=0, subset="kill", cmap="RdYlGn")
                 .background_gradient(axis=0, subset="death", cmap="RdYlGn_r")
                 .background_gradient(axis=0, subset="assist", cmap="RdYlGn")
-                .background_gradient(axis=0, subset="kda", cmap="RdYlGn", high=30.0)
+                .background_gradient(axis=0, subset="kda", cmap="RdYlGn")
                 .background_gradient(axis=0, subset="cs", cmap="RdYlGn")
                 .background_gradient(axis=0, subset="gold", cmap="RdYlGn")
             )
@@ -424,7 +424,7 @@ def page_record():
                 .background_gradient(axis=0, subset="kill", cmap="RdYlGn")
                 .background_gradient(axis=0, subset="death", cmap="RdYlGn_r")
                 .background_gradient(axis=0, subset="assist", cmap="RdYlGn")
-                .background_gradient(axis=0, subset="kda", cmap="RdYlGn", high=30.0)
+                .background_gradient(axis=0, subset="kda", cmap="RdYlGn")
                 .background_gradient(axis=0, subset="cs", cmap="RdYlGn")
                 .background_gradient(axis=0, subset="gold", cmap="RdYlGn")
             )
@@ -433,24 +433,21 @@ def page_record():
             st.session_state.df_all_set_dict[keys] = st.session_state.df_all_set_dict[keys].sort_values(
                 "match_count", ascending=False
             )
-            df_all_set_dict_styler[keys] = (
-                st.session_state.df_all_set_dict[keys]
-                .style.format(
-                    formatter={
-                        "match_count": "{:.0f}",
-                        "win_count": "{:.0f}",
-                        "win_rate": "{:.2f}",
-                        "kill": "{:.1f}",
-                        "death": "{:.1f}",
-                        "assist": "{:.1f}",
-                        "kda": "{:.2f}",
-                        "cs": "{:.0f}",
-                        "gold": "{:.0f}",
-                        "c_ward": "{:.1f}",
-                        "rating": "{:.1f}",
-                    },
-                    na_rep="-",
-                )
+            df_all_set_dict_styler[keys] = st.session_state.df_all_set_dict[keys].style.format(
+                formatter={
+                    "match_count": "{:.0f}",
+                    "win_count": "{:.0f}",
+                    "win_rate": "{:.2f}",
+                    "kill": "{:.1f}",
+                    "death": "{:.1f}",
+                    "assist": "{:.1f}",
+                    "kda": "{:.2f}",
+                    "cs": "{:.0f}",
+                    "gold": "{:.0f}",
+                    "c_ward": "{:.1f}",
+                    "rating": "{:.1f}",
+                },
+                na_rep="-",
             )
 
         # フォーマット
