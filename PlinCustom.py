@@ -1,15 +1,16 @@
-import streamlit as st
-from google.oauth2 import service_account
-from google.cloud import storage
-from io import BytesIO
-import pandas as pd
-import trueskill
 import itertools
 import math
-from PIL import Image
 import random
 import statistics
+from io import BytesIO
+
 import matplotlib.pyplot as plt
+import pandas as pd
+import streamlit as st
+import trueskill
+from google.cloud import storage
+from google.oauth2 import service_account
+from PIL import Image
 
 
 def win_probability(team1, team2, env=None):
@@ -64,13 +65,20 @@ def get_all_record():
     st.session_state.df_all_set_dict = {}
     st.session_state.df_all_dict = {}
     st.session_state.df_list = []
-    credentials = service_account.Credentials.from_service_account_info(st.secrets["gcp_service_account"])
+    credentials = service_account.Credentials.from_service_account_info(
+        st.secrets["gcp_service_account"]
+    )
     client = storage.Client(credentials=credentials)
 
     bucket_name = "custom-match-history"
     blobs = get_blobs(bucket_name, client)
 
-    name_dict = {"弁天町5520001": "弁財天", "弁天魚のムニエル": "弁財天", "ナウナヤングマン": "ヤングマン", "Пудинг": "魔法少女ぷりん"}
+    name_dict = {
+        "弁天町5520001": "弁財天",
+        "弁天魚のムニエル": "弁財天",
+        "ナウナヤングマン": "ヤングマン",
+        "Пудинг": "魔法少女ぷりん",
+    }
 
     match_dict = dict(
         match_count=[0, 0, 0, 0, 0, 0],
@@ -105,7 +113,9 @@ def get_all_record():
                 player_name = data.player
             if player_name not in st.session_state.df_player_dict:
                 st.session_state.df_player_dict[player_name] = df_personal.copy()
-                st.session_state.rate_dict[player_name] = [st.session_state.env.create_rating()]
+                st.session_state.rate_dict[player_name] = [
+                    st.session_state.env.create_rating()
+                ]
             if data.team == 100:
                 team1[player_name] = st.session_state.rate_dict[player_name][0]
             else:
@@ -135,44 +145,86 @@ def get_all_record():
             if champion_name not in st.session_state.df_champion_dict:
                 st.session_state.df_champion_dict[champion_name] = df_personal.copy()
             if (player_name, champion_name) not in st.session_state.df_set_dict:
-                st.session_state.df_set_dict[(player_name, champion_name)] = df_personal.copy()
+                st.session_state.df_set_dict[
+                    (player_name, champion_name)
+                ] = df_personal.copy()
 
             # 全データ集計
             st.session_state.df_player_dict[player_name]["match_count"]["all"] += 1
-            st.session_state.df_player_dict[player_name]["win_count"]["all"] += 1 if data.win == "Win" else 0
-            st.session_state.df_player_dict[player_name]["kill"]["all"] += data.championsKilled
-            st.session_state.df_player_dict[player_name]["death"]["all"] += data.numDeaths
-            st.session_state.df_player_dict[player_name]["assist"]["all"] += data.assists
-            st.session_state.df_player_dict[player_name]["cs"]["all"] += data.cs
-            st.session_state.df_player_dict[player_name]["gold"]["all"] += data.goldEarned
-            st.session_state.df_player_dict[player_name]["c_ward"]["all"] += data.visionWardsBoughtInGame
-            st.session_state.df_player_dict[player_name]["rating"]["all"] = st.session_state.rate_dict[player_name][
-                0
-            ].mu
-            st.session_state.df_champion_dict[champion_name]["match_count"]["all"] += 1
-            st.session_state.df_champion_dict[champion_name]["win_count"]["all"] += 1 if data.win == "Win" else 0
-            st.session_state.df_champion_dict[champion_name]["kill"]["all"] += data.championsKilled
-            st.session_state.df_champion_dict[champion_name]["death"]["all"] += data.numDeaths
-            st.session_state.df_champion_dict[champion_name]["assist"]["all"] += data.assists
-            st.session_state.df_champion_dict[champion_name]["cs"]["all"] += data.cs
-            st.session_state.df_champion_dict[champion_name]["gold"]["all"] += data.goldEarned
-            st.session_state.df_champion_dict[champion_name]["c_ward"]["all"] += data.visionWardsBoughtInGame
-            st.session_state.df_set_dict[(player_name, champion_name)]["match_count"]["all"] += 1
-            st.session_state.df_set_dict[(player_name, champion_name)]["win_count"]["all"] += (
+            st.session_state.df_player_dict[player_name]["win_count"]["all"] += (
                 1 if data.win == "Win" else 0
             )
-            st.session_state.df_set_dict[(player_name, champion_name)]["kill"]["all"] += data.championsKilled
-            st.session_state.df_set_dict[(player_name, champion_name)]["death"]["all"] += data.numDeaths
-            st.session_state.df_set_dict[(player_name, champion_name)]["assist"]["all"] += data.assists
-            st.session_state.df_set_dict[(player_name, champion_name)]["cs"]["all"] += data.cs
-            st.session_state.df_set_dict[(player_name, champion_name)]["gold"]["all"] += data.goldEarned
-            st.session_state.df_set_dict[(player_name, champion_name)]["c_ward"]["all"] += data.visionWardsBoughtInGame
+            st.session_state.df_player_dict[player_name]["kill"][
+                "all"
+            ] += data.championsKilled
+            st.session_state.df_player_dict[player_name]["death"][
+                "all"
+            ] += data.numDeaths
+            st.session_state.df_player_dict[player_name]["assist"][
+                "all"
+            ] += data.assists
+            st.session_state.df_player_dict[player_name]["cs"]["all"] += data.cs
+            st.session_state.df_player_dict[player_name]["gold"][
+                "all"
+            ] += data.goldEarned
+            st.session_state.df_player_dict[player_name]["c_ward"][
+                "all"
+            ] += data.visionWardsBoughtInGame
+            st.session_state.df_player_dict[player_name]["rating"][
+                "all"
+            ] = st.session_state.rate_dict[player_name][0].mu
+            st.session_state.df_champion_dict[champion_name]["match_count"]["all"] += 1
+            st.session_state.df_champion_dict[champion_name]["win_count"]["all"] += (
+                1 if data.win == "Win" else 0
+            )
+            st.session_state.df_champion_dict[champion_name]["kill"][
+                "all"
+            ] += data.championsKilled
+            st.session_state.df_champion_dict[champion_name]["death"][
+                "all"
+            ] += data.numDeaths
+            st.session_state.df_champion_dict[champion_name]["assist"][
+                "all"
+            ] += data.assists
+            st.session_state.df_champion_dict[champion_name]["cs"]["all"] += data.cs
+            st.session_state.df_champion_dict[champion_name]["gold"][
+                "all"
+            ] += data.goldEarned
+            st.session_state.df_champion_dict[champion_name]["c_ward"][
+                "all"
+            ] += data.visionWardsBoughtInGame
+            st.session_state.df_set_dict[(player_name, champion_name)]["match_count"][
+                "all"
+            ] += 1
+            st.session_state.df_set_dict[(player_name, champion_name)]["win_count"][
+                "all"
+            ] += (1 if data.win == "Win" else 0)
+            st.session_state.df_set_dict[(player_name, champion_name)]["kill"][
+                "all"
+            ] += data.championsKilled
+            st.session_state.df_set_dict[(player_name, champion_name)]["death"][
+                "all"
+            ] += data.numDeaths
+            st.session_state.df_set_dict[(player_name, champion_name)]["assist"][
+                "all"
+            ] += data.assists
+            st.session_state.df_set_dict[(player_name, champion_name)]["cs"][
+                "all"
+            ] += data.cs
+            st.session_state.df_set_dict[(player_name, champion_name)]["gold"][
+                "all"
+            ] += data.goldEarned
+            st.session_state.df_set_dict[(player_name, champion_name)]["c_ward"][
+                "all"
+            ] += data.visionWardsBoughtInGame
 
             # ポジション毎データ集計
-            st.session_state.df_player_dict[player_name]["match_count"][position_dict[data.individualPosition]] += 1
-            st.session_state.df_player_dict[player_name]["win_count"][position_dict[data.individualPosition]] += (
-                1 if data.win == "Win" else 0
-            )
+            st.session_state.df_player_dict[player_name]["match_count"][
+                position_dict[data.individualPosition]
+            ] += 1
+            st.session_state.df_player_dict[player_name]["win_count"][
+                position_dict[data.individualPosition]
+            ] += (1 if data.win == "Win" else 0)
             st.session_state.df_player_dict[player_name]["kill"][
                 position_dict[data.individualPosition]
             ] += data.championsKilled
@@ -182,7 +234,9 @@ def get_all_record():
             st.session_state.df_player_dict[player_name]["assist"][
                 position_dict[data.individualPosition]
             ] += data.assists
-            st.session_state.df_player_dict[player_name]["cs"][position_dict[data.individualPosition]] += data.cs
+            st.session_state.df_player_dict[player_name]["cs"][
+                position_dict[data.individualPosition]
+            ] += data.cs
             st.session_state.df_player_dict[player_name]["gold"][
                 position_dict[data.individualPosition]
             ] += data.goldEarned
@@ -192,9 +246,9 @@ def get_all_record():
             st.session_state.df_champion_dict[champion_name]["match_count"][
                 position_dict[data.individualPosition]
             ] += 1
-            st.session_state.df_champion_dict[champion_name]["win_count"][position_dict[data.individualPosition]] += (
-                1 if data.win == "Win" else 0
-            )
+            st.session_state.df_champion_dict[champion_name]["win_count"][
+                position_dict[data.individualPosition]
+            ] += (1 if data.win == "Win" else 0)
             st.session_state.df_champion_dict[champion_name]["kill"][
                 position_dict[data.individualPosition]
             ] += data.championsKilled
@@ -204,7 +258,9 @@ def get_all_record():
             st.session_state.df_champion_dict[champion_name]["assist"][
                 position_dict[data.individualPosition]
             ] += data.assists
-            st.session_state.df_champion_dict[champion_name]["cs"][position_dict[data.individualPosition]] += data.cs
+            st.session_state.df_champion_dict[champion_name]["cs"][
+                position_dict[data.individualPosition]
+            ] += data.cs
             st.session_state.df_champion_dict[champion_name]["gold"][
                 position_dict[data.individualPosition]
             ] += data.goldEarned
@@ -242,108 +298,130 @@ def get_all_record():
             st.session_state.df_player_dict[player_name]["win_count"]
             / st.session_state.df_player_dict[player_name]["match_count"]
         )
-        st.session_state.df_player_dict[player_name]["kill"] /= st.session_state.df_player_dict[player_name][
-            "match_count"
-        ]
-        st.session_state.df_player_dict[player_name]["death"] /= st.session_state.df_player_dict[player_name][
-            "match_count"
-        ]
-        st.session_state.df_player_dict[player_name]["assist"] /= st.session_state.df_player_dict[player_name][
-            "match_count"
-        ]
+        st.session_state.df_player_dict[player_name][
+            "kill"
+        ] /= st.session_state.df_player_dict[player_name]["match_count"]
+        st.session_state.df_player_dict[player_name][
+            "death"
+        ] /= st.session_state.df_player_dict[player_name]["match_count"]
+        st.session_state.df_player_dict[player_name][
+            "assist"
+        ] /= st.session_state.df_player_dict[player_name]["match_count"]
         st.session_state.df_player_dict[player_name]["kda"] = (
             st.session_state.df_player_dict[player_name]["kill"]
             + st.session_state.df_player_dict[player_name]["assist"]
-        ) / [x if x != 0 else 1 for x in st.session_state.df_player_dict[player_name]["death"]]
-        st.session_state.df_player_dict[player_name]["cs"] /= st.session_state.df_player_dict[player_name][
-            "match_count"
+        ) / [
+            x if x != 0 else 1
+            for x in st.session_state.df_player_dict[player_name]["death"]
         ]
-        st.session_state.df_player_dict[player_name]["gold"] /= st.session_state.df_player_dict[player_name][
-            "match_count"
-        ]
-        st.session_state.df_player_dict[player_name]["c_ward"] /= st.session_state.df_player_dict[player_name][
-            "match_count"
-        ]
+        st.session_state.df_player_dict[player_name][
+            "cs"
+        ] /= st.session_state.df_player_dict[player_name]["match_count"]
+        st.session_state.df_player_dict[player_name][
+            "gold"
+        ] /= st.session_state.df_player_dict[player_name]["match_count"]
+        st.session_state.df_player_dict[player_name][
+            "c_ward"
+        ] /= st.session_state.df_player_dict[player_name]["match_count"]
     for champion_name in st.session_state.df_champion_dict.keys():
         st.session_state.df_champion_dict[champion_name]["win_rate"] = (
             st.session_state.df_champion_dict[champion_name]["win_count"]
             / st.session_state.df_champion_dict[champion_name]["match_count"]
         )
-        st.session_state.df_champion_dict[champion_name]["kill"] /= st.session_state.df_champion_dict[champion_name][
-            "match_count"
-        ]
-        st.session_state.df_champion_dict[champion_name]["death"] /= st.session_state.df_champion_dict[champion_name][
-            "match_count"
-        ]
-        st.session_state.df_champion_dict[champion_name]["assist"] /= st.session_state.df_champion_dict[champion_name][
-            "match_count"
-        ]
+        st.session_state.df_champion_dict[champion_name][
+            "kill"
+        ] /= st.session_state.df_champion_dict[champion_name]["match_count"]
+        st.session_state.df_champion_dict[champion_name][
+            "death"
+        ] /= st.session_state.df_champion_dict[champion_name]["match_count"]
+        st.session_state.df_champion_dict[champion_name][
+            "assist"
+        ] /= st.session_state.df_champion_dict[champion_name]["match_count"]
         st.session_state.df_champion_dict[champion_name]["kda"] = (
             st.session_state.df_champion_dict[champion_name]["kill"]
             + st.session_state.df_champion_dict[champion_name]["assist"]
-        ) / [x if x != 0 else 1 for x in st.session_state.df_champion_dict[champion_name]["death"]]
-        st.session_state.df_champion_dict[champion_name]["cs"] /= st.session_state.df_champion_dict[champion_name][
-            "match_count"
+        ) / [
+            x if x != 0 else 1
+            for x in st.session_state.df_champion_dict[champion_name]["death"]
         ]
-        st.session_state.df_champion_dict[champion_name]["gold"] /= st.session_state.df_champion_dict[champion_name][
-            "match_count"
-        ]
-        st.session_state.df_champion_dict[champion_name]["c_ward"] /= st.session_state.df_champion_dict[champion_name][
-            "match_count"
-        ]
+        st.session_state.df_champion_dict[champion_name][
+            "cs"
+        ] /= st.session_state.df_champion_dict[champion_name]["match_count"]
+        st.session_state.df_champion_dict[champion_name][
+            "gold"
+        ] /= st.session_state.df_champion_dict[champion_name]["match_count"]
+        st.session_state.df_champion_dict[champion_name][
+            "c_ward"
+        ] /= st.session_state.df_champion_dict[champion_name]["match_count"]
     for (player_name, champion_name) in st.session_state.df_set_dict.keys():
         st.session_state.df_set_dict[(player_name, champion_name)]["win_rate"] = (
             st.session_state.df_set_dict[(player_name, champion_name)]["win_count"]
             / st.session_state.df_set_dict[(player_name, champion_name)]["match_count"]
         )
-        st.session_state.df_set_dict[(player_name, champion_name)]["kill"] /= st.session_state.df_set_dict[
-            (player_name, champion_name)
-        ]["match_count"]
-        st.session_state.df_set_dict[(player_name, champion_name)]["death"] /= st.session_state.df_set_dict[
-            (player_name, champion_name)
-        ]["match_count"]
-        st.session_state.df_set_dict[(player_name, champion_name)]["assist"] /= st.session_state.df_set_dict[
-            (player_name, champion_name)
-        ]["match_count"]
+        st.session_state.df_set_dict[(player_name, champion_name)][
+            "kill"
+        ] /= st.session_state.df_set_dict[(player_name, champion_name)]["match_count"]
+        st.session_state.df_set_dict[(player_name, champion_name)][
+            "death"
+        ] /= st.session_state.df_set_dict[(player_name, champion_name)]["match_count"]
+        st.session_state.df_set_dict[(player_name, champion_name)][
+            "assist"
+        ] /= st.session_state.df_set_dict[(player_name, champion_name)]["match_count"]
         st.session_state.df_set_dict[(player_name, champion_name)]["kda"] = (
             st.session_state.df_set_dict[(player_name, champion_name)]["kill"]
             + st.session_state.df_set_dict[(player_name, champion_name)]["assist"]
-        ) / [x if x != 0 else 1 for x in st.session_state.df_set_dict[(player_name, champion_name)]["death"]]
-        st.session_state.df_set_dict[(player_name, champion_name)]["cs"] /= st.session_state.df_set_dict[
-            (player_name, champion_name)
-        ]["match_count"]
-        st.session_state.df_set_dict[(player_name, champion_name)]["gold"] /= st.session_state.df_set_dict[
-            (player_name, champion_name)
-        ]["match_count"]
-        st.session_state.df_set_dict[(player_name, champion_name)]["c_ward"] /= st.session_state.df_set_dict[
-            (player_name, champion_name)
-        ]["match_count"]
+        ) / [
+            x if x != 0 else 1
+            for x in st.session_state.df_set_dict[(player_name, champion_name)]["death"]
+        ]
+        st.session_state.df_set_dict[(player_name, champion_name)][
+            "cs"
+        ] /= st.session_state.df_set_dict[(player_name, champion_name)]["match_count"]
+        st.session_state.df_set_dict[(player_name, champion_name)][
+            "gold"
+        ] /= st.session_state.df_set_dict[(player_name, champion_name)]["match_count"]
+        st.session_state.df_set_dict[(player_name, champion_name)][
+            "c_ward"
+        ] /= st.session_state.df_set_dict[(player_name, champion_name)]["match_count"]
 
     # 全体集計用データ作成
     df_all_player = pd.DataFrame(
-        index=[], columns=st.session_state.df_player_dict[next(iter(st.session_state.df_player_dict))].columns
+        index=[],
+        columns=st.session_state.df_player_dict[
+            next(iter(st.session_state.df_player_dict))
+        ].columns,
     )
     for player in st.session_state.df_player_dict.keys():
         for position in st.session_state.df_player_dict[player].iterrows():
             if position[0] not in st.session_state.df_all_dict:
                 st.session_state.df_all_dict[position[0]] = df_all_player.copy()
             df_tmp = pd.DataFrame([position[1]], index={player})
-            st.session_state.df_all_dict[position[0]] = pd.concat([st.session_state.df_all_dict[position[0]], df_tmp])
+            st.session_state.df_all_dict[position[0]] = pd.concat(
+                [st.session_state.df_all_dict[position[0]], df_tmp]
+            )
 
     df_all_champion = pd.DataFrame(
-        index=[], columns=st.session_state.df_champion_dict[next(iter(st.session_state.df_champion_dict))].columns
+        index=[],
+        columns=st.session_state.df_champion_dict[
+            next(iter(st.session_state.df_champion_dict))
+        ].columns,
     )
     for champion in st.session_state.df_champion_dict.keys():
         for position in st.session_state.df_champion_dict[champion].iterrows():
             if position[0] not in st.session_state.df_all_champion_dict:
-                st.session_state.df_all_champion_dict[position[0]] = df_all_champion.copy()
+                st.session_state.df_all_champion_dict[
+                    position[0]
+                ] = df_all_champion.copy()
             df_tmp = pd.DataFrame([position[1]], index={champion})
             st.session_state.df_all_champion_dict[position[0]] = pd.concat(
                 [st.session_state.df_all_champion_dict[position[0]], df_tmp]
             )
 
     df_all_set = pd.DataFrame(
-        index=[], columns=st.session_state.df_set_dict[next(iter(st.session_state.df_set_dict))].columns
+        index=[],
+        columns=st.session_state.df_set_dict[
+            next(iter(st.session_state.df_set_dict))
+        ].columns,
     )
     for (player, champion) in st.session_state.df_set_dict.keys():
         if player not in st.session_state.df_all_set_dict:
@@ -351,7 +429,9 @@ def get_all_record():
         st.session_state.df_all_set_dict[player] = pd.concat(
             [
                 st.session_state.df_all_set_dict[player],
-                st.session_state.df_set_dict[(player, champion)][:1].rename(index={"all": champion}),
+                st.session_state.df_set_dict[(player, champion)][:1].rename(
+                    index={"all": champion}
+                ),
             ]
         )
 
@@ -369,9 +449,9 @@ def page_record():
     if "df_all_dict" in st.session_state:
         df_all_dict_styler = {}
         for keys in st.session_state.df_all_dict.keys():
-            st.session_state.df_all_dict[keys] = st.session_state.df_all_dict[keys].sort_values(
-                "win_rate", ascending=False
-            )
+            st.session_state.df_all_dict[keys] = st.session_state.df_all_dict[
+                keys
+            ].sort_values("win_rate", ascending=False)
             df_all_dict_styler[keys] = (
                 st.session_state.df_all_dict[keys]
                 .style.format(
@@ -400,7 +480,9 @@ def page_record():
             )
         df_all_champion_dict_styler = {}
         for keys in st.session_state.df_all_champion_dict.keys():
-            st.session_state.df_all_champion_dict[keys] = st.session_state.df_all_champion_dict[keys].sort_values(
+            st.session_state.df_all_champion_dict[
+                keys
+            ] = st.session_state.df_all_champion_dict[keys].sort_values(
                 "match_count", ascending=False
             )
             df_all_champion_dict_styler[keys] = (
@@ -431,10 +513,12 @@ def page_record():
             )
         df_all_set_dict_styler = {}
         for keys in st.session_state.df_all_set_dict.keys():
-            st.session_state.df_all_set_dict[keys] = st.session_state.df_all_set_dict[keys].sort_values(
-                "match_count", ascending=False
-            )
-            df_all_set_dict_styler[keys] = st.session_state.df_all_set_dict[keys].style.format(
+            st.session_state.df_all_set_dict[keys] = st.session_state.df_all_set_dict[
+                keys
+            ].sort_values("match_count", ascending=False)
+            df_all_set_dict_styler[keys] = st.session_state.df_all_set_dict[
+                keys
+            ].style.format(
                 formatter={
                     "match_count": "{:.0f}",
                     "win_count": "{:.0f}",
@@ -454,7 +538,9 @@ def page_record():
         # フォーマット
         df_player_dict_styler = {}
         for keys in st.session_state.df_player_dict.keys():
-            df_player_dict_styler[keys] = st.session_state.df_player_dict[keys].style.format(
+            df_player_dict_styler[keys] = st.session_state.df_player_dict[
+                keys
+            ].style.format(
                 formatter={
                     "win_rate": "{:.2f}",
                     "kill": "{:.1f}",
@@ -470,7 +556,9 @@ def page_record():
             )
         df_champion_dict_styler = {}
         for keys in st.session_state.df_champion_dict.keys():
-            df_champion_dict_styler[keys] = st.session_state.df_champion_dict[keys].style.format(
+            df_champion_dict_styler[keys] = st.session_state.df_champion_dict[
+                keys
+            ].style.format(
                 formatter={
                     "win_rate": "{:.2f}",
                     "kill": "{:.1f}",
@@ -503,7 +591,9 @@ def page_record():
             mu_list.reverse()
             sigma_list = [sigma for _, sigma in st.session_state.rate_dict[option2]]
             sigma_list.reverse()
-            match_cnt_list = [i for i in range(len(st.session_state.rate_dict[option2]))]
+            match_cnt_list = [
+                i for i in range(len(st.session_state.rate_dict[option2]))
+            ]
             fig, ax = plt.subplots()
             ax.plot(match_cnt_list, mu_list)
             ax.errorbar(match_cnt_list, mu_list, yerr=sigma_list, fmt="o")
@@ -542,16 +632,28 @@ def page_history():
                 }
             )
             df.loc[df["death"] == 0, "kda"] = df["kill"] + df["assist"]
-            df.loc[~(df["death"] == 0), "kda"] = (df["kill"] + df["assist"]) / df["death"]
+            df.loc[~(df["death"] == 0), "kda"] = (df["kill"] + df["assist"]) / df[
+                "death"
+            ]
             df["cs"] = df["minionsKilled"] + df["neutralMinionsKilled"]
             df1 = df[0:5]
             df2 = df[5:10]
             pos_order = ["TOP", "JUNGLE", "MIDDLE", "BOTTOM", "UTILITY"]
-            df1["order"] = df1["position"].apply(lambda x: pos_order.index(x) if x in pos_order else -1)
-            df2["order"] = df2["position"].apply(lambda x: pos_order.index(x) if x in pos_order else -1)
+            df1["order"] = df1["position"].apply(
+                lambda x: pos_order.index(x) if x in pos_order else -1
+            )
+            df2["order"] = df2["position"].apply(
+                lambda x: pos_order.index(x) if x in pos_order else -1
+            )
             df1 = df1.sort_values("order")
             df2 = df2.sort_values("order")
-            drop_col = ["player", "order", "minionsKilled", "neutralMinionsKilled", "position"]
+            drop_col = [
+                "player",
+                "order",
+                "minionsKilled",
+                "neutralMinionsKilled",
+                "position",
+            ]
             df1 = df1.drop(drop_col, axis=1)
             df2 = df2.drop(drop_col, axis=1)
             columns_order = [
@@ -646,13 +748,27 @@ def page_balancer():
                     for player in team:
                         tmp_list = [0, 1, 2, 3, 4]
                         if player in position_priority.keys():
-                            tmp_list = [i for _, i in sorted(zip(position_priority[player], tmp_list))]
+                            tmp_list = [
+                                i
+                                for _, i in sorted(
+                                    zip(position_priority[player], tmp_list)
+                                )
+                            ]
                         else:
-                            role_weight = list(st.session_state.df_player_dict[player]["match_count"][:])
+                            role_weight = list(
+                                st.session_state.df_player_dict[player]["match_count"][
+                                    :
+                                ]
+                            )
                             weight_list = []
                             for i in range(5):
                                 weight_list.append(role_weight[i + 1] / role_weight[0])
-                            tmp_list = [i for _, i in sorted(zip(weight_list, tmp_list), reverse=True)]
+                            tmp_list = [
+                                i
+                                for _, i in sorted(
+                                    zip(weight_list, tmp_list), reverse=True
+                                )
+                            ]
                         for i in range(5):
                             if team_list[tmp_list[i]] == "":
                                 priority_sum += i
