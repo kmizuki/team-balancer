@@ -591,7 +591,7 @@ def page_balancer():
             "ML狼": [4, 3, 0, 2, 1],
             "miz0chi": [1, 2, 4, 3, 0],
             "のっぺぃ": [0, 3, 2, 4, 1],
-            "Пудинг": [0, 3, 1, 2, 4],
+            "魔法少女ぷりん": [0, 3, 1, 2, 4],
             "Raraku": [3, 1, 2, 4, 0],
             "GaHaHaCiK": [1, 2, 3, 0, 4],
             "Dan14": [0, 2, 1, 4, 3],
@@ -608,57 +608,70 @@ def page_balancer():
         options5 = st.multiselect("参加者", st.session_state.df_player_dict.keys(), [])
         if len(options5) == 10:
             st.button("再振り分け")
-            wp = 0.0
             wp_min = 0.4
             wp_max = 0.6
-            cnt = 0
-            while wp < wp_min or wp > wp_max:
-                options5 = random.sample(options5, 10)
-                a = options5[:5]
-                b = options5[5:]
-                t3 = []
-                t4 = []
-                for player in a:
-                    t3.append(st.session_state.rate_dict[player][0])
-                for player in b:
-                    t4.append(st.session_state.rate_dict[player][0])
-                wp = win_probability(t3, t4, env=st.session_state.env)
-                cnt += 1
-                if cnt % 10 == 0:
-                    wp_min -= 0.01
-                    wp_max += 0.01
-            teams = [a, b]
-            team_dict_list = []
-            ave_rate = []
-            for team in teams:
-                rate = []
-                team_dict = {}
-                for player in team:
-                    rate.append(st.session_state.rate_dict[player][0].mu)
-                team = [i for _, i in sorted(zip(rate, team))]
-                ave_rate.append(statistics.mean(rate))
-                team_list = ["", "", "", "", ""]
-                for player in team:
-                    tmp_list = [0, 1, 2, 3, 4]
-                    if player in position_priority.keys():
-                        tmp_list = [i for _, i in sorted(zip(position_priority[player], tmp_list))]
-                    else:
-                        role_weight = list(st.session_state.df_player_dict[player]["match_count"][:])
-                        weight_list = []
+            priority_checking = True
+            priority_cnt = 0
+            priority_threshold = 2
+            while priority_checking:
+                wp_cnt = 0
+                wp = 0.0
+                while wp < wp_min or wp > wp_max:
+                    options5 = random.sample(options5, 10)
+                    a = options5[:5]
+                    b = options5[5:]
+                    t3 = []
+                    t4 = []
+                    for player in a:
+                        t3.append(st.session_state.rate_dict[player][0])
+                    for player in b:
+                        t4.append(st.session_state.rate_dict[player][0])
+                    wp = win_probability(t3, t4, env=st.session_state.env)
+                    wp_cnt += 1
+                    if wp_cnt % 10 == 0:
+                        wp_min -= 0.01
+                        wp_max += 0.01
+                teams = [a, b]
+                team_dict_list = []
+                ave_rate = []
+                for team in teams:
+                    rate = []
+                    team_dict = {}
+                    for player in team:
+                        rate.append(st.session_state.rate_dict[player][0].mu)
+                    team = [i for _, i in sorted(zip(rate, team))]
+                    ave_rate.append(statistics.mean(rate))
+                    team_list = ["", "", "", "", ""]
+                    priority_sum = 0
+                    for player in team:
+                        tmp_list = [0, 1, 2, 3, 4]
+                        if player in position_priority.keys():
+                            tmp_list = [i for _, i in sorted(zip(position_priority[player], tmp_list))]
+                        else:
+                            role_weight = list(st.session_state.df_player_dict[player]["match_count"][:])
+                            weight_list = []
+                            for i in range(5):
+                                weight_list.append(role_weight[i + 1] / role_weight[0])
+                            tmp_list = [i for _, i in sorted(zip(weight_list, tmp_list), reverse=True)]
                         for i in range(5):
-                            weight_list.append(role_weight[i + 1] / role_weight[0])
-                        tmp_list = [i for _, i in sorted(zip(weight_list, tmp_list), reverse=True)]
-                    for i in range(5):
-                        if team_list[tmp_list[i]] == "":
-                            team_list[tmp_list[i]] = player
-                            break
-                team_dict["top"] = team_list[0]
-                team_dict["jg"] = team_list[1]
-                team_dict["mid"] = team_list[2]
-                team_dict["bot"] = team_list[3]
-                team_dict["supp"] = team_list[4]
-                team_dict_list.append(team_dict)
-
+                            if team_list[tmp_list[i]] == "":
+                                priority_sum += i
+                                team_list[tmp_list[i]] = player
+                                break
+                    if priority_sum <= priority_threshold:
+                        priority_checking = False
+                    else:
+                        priority_checking = True
+                        priority_cnt += 1
+                        if priority_cnt % 50 == 0:
+                            priority_threshold += 1
+                        break
+                    team_dict["top"] = team_list[0]
+                    team_dict["jg"] = team_list[1]
+                    team_dict["mid"] = team_list[2]
+                    team_dict["bot"] = team_list[3]
+                    team_dict["supp"] = team_list[4]
+                    team_dict_list.append(team_dict)
             col1, col2 = st.columns(2)
             with col1:
                 st.write(f"チームA平均レート: {ave_rate[0]:.1f}")
