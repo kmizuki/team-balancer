@@ -53,7 +53,6 @@ st.set_page_config(
 )
 
 
-@st.experimental_memo()
 def get_all_record():
     st.session_state.env = trueskill.TrueSkill(draw_probability=0.0)
     st.session_state.env.make_as_global()
@@ -359,10 +358,12 @@ def get_all_record():
 
 def page_record():
     if st.button("データ更新"):
-        get_all_record.clear()
+        for key in st.session_state.keys():
+            del st.session_state[key]
         get_all_record()
     if "df_all_dict" not in st.session_state:
-        get_all_record.clear()
+        for key in st.session_state.keys():
+            del st.session_state[key]
         get_all_record()
 
     if "df_all_dict" in st.session_state:
@@ -516,10 +517,12 @@ def page_record():
 
 def page_history():
     if st.button("データ更新"):
-        get_all_record.clear()
+        for key in st.session_state.keys():
+            del st.session_state[key]
         get_all_record()
     if "df_list" not in st.session_state:
-        get_all_record.clear()
+        for key in st.session_state.keys():
+            del st.session_state[key]
         get_all_record()
     if "df_list" in st.session_state:
         i = len(list(st.session_state.df_list))
@@ -574,10 +577,12 @@ def page_history():
 
 def page_balancer():
     if st.button("データ更新"):
-        get_all_record.clear()
+        for key in st.session_state.keys():
+            del st.session_state[key]
         get_all_record()
     if "df_player_dict" not in st.session_state:
-        get_all_record.clear()
+        for key in st.session_state.keys():
+            del st.session_state[key]
         get_all_record()
     if "df_player_dict" in st.session_state:
         position_priority = {
