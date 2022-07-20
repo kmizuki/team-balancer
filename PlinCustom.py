@@ -678,7 +678,7 @@ def page_balancer():
 def page_benzaiten():
     st.title("今日の弁財天")
 
-    img = Image.open("zeniarai.jpeg")
+    img = Image.open("benzaiten2.jpeg")
     st.image(img, use_column_width=True)
 
 
