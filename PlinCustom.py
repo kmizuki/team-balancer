@@ -486,14 +486,16 @@ def page_history():
             df1 = df[0:5]
             df2 = df[5:10]
             pos_order = ["TOP", "JUNGLE", "MIDDLE", "BOTTOM", "UTILITY"]
-            df1["order"] = df1["position"].apply(
+            df_cp1 = df1.copy()
+            df_cp2 = df2.copy()
+            df_cp1.loc[:, "order"] = df1["position"].apply(
                 lambda x: pos_order.index(x) if x in pos_order else -1
             )
-            df2["order"] = df2["position"].apply(
+            df_cp2.loc[:, "order"] = df2["position"].apply(
                 lambda x: pos_order.index(x) if x in pos_order else -1
             )
-            df1 = df1.sort_values("order")
-            df2 = df2.sort_values("order")
+            df_cp1 = df_cp1.sort_values("order")
+            df_cp2 = df_cp2.sort_values("order")
             drop_col = [
                 "player",
                 "order",
@@ -501,8 +503,8 @@ def page_history():
                 "neutralMinionsKilled",
                 "position",
             ]
-            df1 = df1.drop(drop_col, axis=1)
-            df2 = df2.drop(drop_col, axis=1)
+            df_cp1 = df_cp1.drop(drop_col, axis=1)
+            df_cp2 = df_cp2.drop(drop_col, axis=1)
             columns_order = [
                 "champion",
                 "kill",
@@ -515,12 +517,12 @@ def page_history():
                 "win",
                 "side",
             ]
-            df1 = df1.reindex(columns=columns_order)
-            df2 = df2.reindex(columns=columns_order)
-            df1 = df1.style.format(formatter={"kda": "{:.2f}"})
-            df2 = df2.style.format(formatter={"kda": "{:.2f}"})
-            st.table(df1)
-            st.table(df2)
+            df_cp1 = df_cp1.reindex(columns=columns_order)
+            df_cp2 = df_cp2.reindex(columns=columns_order)
+            df_cp1 = df_cp1.style.format(formatter={"kda": "{:.2f}"})
+            df_cp2 = df_cp2.style.format(formatter={"kda": "{:.2f}"})
+            st.table(df_cp1)
+            st.table(df_cp2)
             i -= 1
 
 
