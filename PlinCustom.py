@@ -94,13 +94,13 @@ def get_all_record():
         rating=[0, 0, 0, 0, 0, 0],
     )
     position_dict = {
-        "TOP": "top",
-        "JUNGLE": "jg",
-        "MIDDLE": "mid",
-        "BOTTOM": "bot",
-        "UTILITY": "supp",
+        "TOP": "TOP",
+        "JUNGLE": "JNG",
+        "MIDDLE": "MID",
+        "BOTTOM": "BOT",
+        "UTILITY": "SUP",
     }
-    position_idx = ["all", "top", "jg", "mid", "bot", "supp"]
+    position_idx = ["ALL", "TOP", "JNG", "MID", "BOT", "SUP"]
     df_personal = pd.DataFrame(data=match_dict, index=position_idx)
     st.session_state.df_list = get_dataframe(blobs, bucket_name, client)
     for df in st.session_state.df_list:
@@ -149,83 +149,24 @@ def get_all_record():
                     (player_name, champion_name)
                 ] = df_personal.copy()
 
-            for position in ("all", position_dict[data.individualPosition]):
-                # 全データ集計
-                st.session_state.df_player_dict[player_name].at[
-                    position, "match_count"
-                ] += 1
-                st.session_state.df_player_dict[player_name].at[
-                    position, "win_count"
-                ] += (1 if data.win == "Win" else 0)
-                st.session_state.df_player_dict[player_name].at[
-                    position, "kill"
-                ] += data.championsKilled
-                st.session_state.df_player_dict[player_name].at[
-                    position, "death"
-                ] += data.numDeaths
-                st.session_state.df_player_dict[player_name].at[
-                    position, "assist"
-                ] += data.assists
-                st.session_state.df_player_dict[player_name].at[
-                    position, "cs"
-                ] += data.cs
-                st.session_state.df_player_dict[player_name].at[
-                    position, "gold"
-                ] += data.goldEarned
-                st.session_state.df_player_dict[player_name].at[
-                    position, "c_ward"
-                ] += data.visionWardsBoughtInGame
+            for position in ("ALL", position_dict[data.individualPosition]):
+                for df_type in (
+                    st.session_state.df_player_dict[player_name],
+                    st.session_state.df_champion_dict[champion_name],
+                    st.session_state.df_set_dict[(player_name, champion_name)],
+                ):
+                    # 全データ集計
+                    df_type.at[position, "match_count"] += 1
+                    df_type.at[position, "win_count"] += 1 if data.win == "Win" else 0
+                    df_type.at[position, "kill"] += data.championsKilled
+                    df_type.at[position, "death"] += data.numDeaths
+                    df_type.at[position, "assist"] += data.assists
+                    df_type.at[position, "cs"] += data.cs
+                    df_type.at[position, "gold"] += data.goldEarned
+                    df_type.at[position, "c_ward"] += data.visionWardsBoughtInGame
                 st.session_state.df_player_dict[player_name].at[
                     position, "rating"
                 ] = st.session_state.rate_dict[player_name][0].mu
-                st.session_state.df_champion_dict[champion_name].at[
-                    position, "match_count"
-                ] += 1
-                st.session_state.df_champion_dict[champion_name].at[
-                    position, "win_count"
-                ] += (1 if data.win == "Win" else 0)
-                st.session_state.df_champion_dict[champion_name].at[
-                    position, "kill"
-                ] += data.championsKilled
-                st.session_state.df_champion_dict[champion_name].at[
-                    position, "death"
-                ] += data.numDeaths
-                st.session_state.df_champion_dict[champion_name].at[
-                    position, "assist"
-                ] += data.assists
-                st.session_state.df_champion_dict[champion_name].at[
-                    position, "cs"
-                ] += data.cs
-                st.session_state.df_champion_dict[champion_name].at[
-                    position, "gold"
-                ] += data.goldEarned
-                st.session_state.df_champion_dict[champion_name].at[
-                    position, "c_ward"
-                ] += data.visionWardsBoughtInGame
-                st.session_state.df_set_dict[(player_name, champion_name)].at[
-                    position, "match_count"
-                ] += 1
-                st.session_state.df_set_dict[(player_name, champion_name)].at[
-                    position, "win_count"
-                ] += (1 if data.win == "Win" else 0)
-                st.session_state.df_set_dict[(player_name, champion_name)].at[
-                    position, "kill"
-                ] += data.championsKilled
-                st.session_state.df_set_dict[(player_name, champion_name)].at[
-                    position, "death"
-                ] += data.numDeaths
-                st.session_state.df_set_dict[(player_name, champion_name)].at[
-                    position, "assist"
-                ] += data.assists
-                st.session_state.df_set_dict[(player_name, champion_name)].at[
-                    position, "cs"
-                ] += data.cs
-                st.session_state.df_set_dict[(player_name, champion_name)].at[
-                    position, "gold"
-                ] += data.goldEarned
-                st.session_state.df_set_dict[(player_name, champion_name)].at[
-                    position, "c_ward"
-                ] += data.visionWardsBoughtInGame
 
     # データ正規化
     for dict_type in (
@@ -293,7 +234,7 @@ def get_all_record():
             [
                 st.session_state.df_all_set_dict[player],
                 st.session_state.df_set_dict[(player, champion)][:1].rename(
-                    index={"all": champion}
+                    index={"ALL": champion}
                 ),
             ]
         )
@@ -314,7 +255,7 @@ def page_record():
         for keys in st.session_state.df_all_dict.keys():
             st.session_state.df_all_dict[keys] = st.session_state.df_all_dict[
                 keys
-            ].sort_values("win_rate", ascending=False)
+            ].sort_values("rating", ascending=False)
             df_all_dict_styler[keys] = (
                 st.session_state.df_all_dict[keys]
                 .style.format(
@@ -333,6 +274,8 @@ def page_record():
                     },
                     na_rep="-",
                 )
+                .background_gradient(axis=0, subset="match_count", cmap="RdYlGn")
+                .background_gradient(axis=0, subset="win_count", cmap="RdYlGn")
                 .background_gradient(axis=0, subset="win_rate", cmap="RdYlGn")
                 .background_gradient(axis=0, subset="kill", cmap="RdYlGn")
                 .background_gradient(axis=0, subset="death", cmap="RdYlGn_r")
@@ -340,6 +283,8 @@ def page_record():
                 .background_gradient(axis=0, subset="kda", cmap="RdYlGn")
                 .background_gradient(axis=0, subset="cs", cmap="RdYlGn")
                 .background_gradient(axis=0, subset="gold", cmap="RdYlGn")
+                .background_gradient(axis=0, subset="c_ward", cmap="RdYlGn")
+                .background_gradient(axis=0, subset="rating", cmap="RdYlGn")
             )
         df_all_champion_dict_styler = {}
         for keys in st.session_state.df_all_champion_dict.keys():
@@ -366,6 +311,8 @@ def page_record():
                     },
                     na_rep="-",
                 )
+                .background_gradient(axis=0, subset="match_count", cmap="RdYlGn")
+                .background_gradient(axis=0, subset="win_count", cmap="RdYlGn")
                 .background_gradient(axis=0, subset="win_rate", cmap="RdYlGn")
                 .background_gradient(axis=0, subset="kill", cmap="RdYlGn")
                 .background_gradient(axis=0, subset="death", cmap="RdYlGn_r")
@@ -373,6 +320,7 @@ def page_record():
                 .background_gradient(axis=0, subset="kda", cmap="RdYlGn")
                 .background_gradient(axis=0, subset="cs", cmap="RdYlGn")
                 .background_gradient(axis=0, subset="gold", cmap="RdYlGn")
+                .background_gradient(axis=0, subset="c_ward", cmap="RdYlGn")
             )
         df_all_set_dict_styler = {}
         for keys in st.session_state.df_all_set_dict.keys():
@@ -645,11 +593,11 @@ def page_balancer():
                         if priority_cnt % 50 == 0:
                             priority_threshold += 1
                         break
-                    team_dict["top"] = team_list[0]
-                    team_dict["jg"] = team_list[1]
-                    team_dict["mid"] = team_list[2]
-                    team_dict["bot"] = team_list[3]
-                    team_dict["supp"] = team_list[4]
+                    team_dict["TOP"] = team_list[0]
+                    team_dict["JNG"] = team_list[1]
+                    team_dict["MID"] = team_list[2]
+                    team_dict["BOT"] = team_list[3]
+                    team_dict["SUP"] = team_list[4]
                     team_dict_list.append(team_dict)
             col1, col2 = st.columns(2)
             with col1:
