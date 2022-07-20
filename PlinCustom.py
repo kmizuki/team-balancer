@@ -91,7 +91,7 @@ def get_all_record():
         cs=[0, 0, 0, 0, 0, 0],
         gold=[0, 0, 0, 0, 0, 0],
         c_ward=[0, 0, 0, 0, 0, 0],
-        rating=[0, 0, 0, 0, 0, 0],
+        rating=[None, None, None, None, None, None],
     )
     position_dict = {
         "TOP": "TOP",
@@ -106,6 +106,10 @@ def get_all_record():
     for df in st.session_state.df_list:
         team1 = {}
         team2 = {}
+        team1_p = {}
+        team1_p2 = {}
+        team2_p = {}
+        team2_p2 = {}
         for data in df.itertuples():
             if data.player in name_dict:
                 player_name = name_dict[data.player]
@@ -113,13 +117,26 @@ def get_all_record():
                 player_name = data.player
             if player_name not in st.session_state.df_player_dict:
                 st.session_state.df_player_dict[player_name] = df_personal.copy()
-                st.session_state.rate_dict[player_name] = [
-                    st.session_state.env.create_rating()
-                ]
+                st.session_state.rate_dict.update(
+                    {
+                        player_name: {
+                            idx: [st.session_state.env.create_rating()]
+                            for idx in position_idx
+                        }
+                    }
+                )
             if data.team == 100:
-                team1[player_name] = st.session_state.rate_dict[player_name][0]
+                team1[player_name] = st.session_state.rate_dict[player_name]["ALL"][0]
+                team1_p[player_name] = st.session_state.rate_dict[player_name][
+                    position_dict[data.individualPosition]
+                ][0]
+                team1_p2[player_name] = position_dict[data.individualPosition]
             else:
-                team2[player_name] = st.session_state.rate_dict[player_name][0]
+                team2[player_name] = st.session_state.rate_dict[player_name]["ALL"][0]
+                team2_p[player_name] = st.session_state.rate_dict[player_name][
+                    position_dict[data.individualPosition]
+                ][0]
+                team2_p2[player_name] = position_dict[data.individualPosition]
 
         team1, team2, = st.session_state.env.rate(
             (
@@ -131,10 +148,24 @@ def get_all_record():
                 1 - (data.win == "Win"),
             ),
         )
+        team1_p, team2_p, = st.session_state.env.rate(
+            (
+                team1_p,
+                team2_p,
+            ),
+            ranks=(
+                0 + (data.win == "Win"),
+                1 - (data.win == "Win"),
+            ),
+        )
         for r_key in team1.keys():
-            st.session_state.rate_dict[r_key].insert(0, team1[r_key])
+            st.session_state.rate_dict[r_key]["ALL"].insert(0, team1[r_key])
         for r_key in team2.keys():
-            st.session_state.rate_dict[r_key].insert(0, team2[r_key])
+            st.session_state.rate_dict[r_key]["ALL"].insert(0, team2[r_key])
+        for r_key in team1_p.keys():
+            st.session_state.rate_dict[r_key][team1_p2[r_key]].insert(0, team1_p[r_key])
+        for r_key in team2_p.keys():
+            st.session_state.rate_dict[r_key][team2_p2[r_key]].insert(0, team2_p[r_key])
 
         for data in df.itertuples():
             if data.player in name_dict:
@@ -166,7 +197,7 @@ def get_all_record():
                     df_type.at[position, "c_ward"] += data.visionWardsBoughtInGame
                 st.session_state.df_player_dict[player_name].at[
                     position, "rating"
-                ] = st.session_state.rate_dict[player_name][0].mu
+                ] = st.session_state.rate_dict[player_name][position][0].mu
 
     # データ正規化
     for dict_type in (
@@ -398,12 +429,14 @@ def page_record():
             st.dataframe(df_all_set_dict_styler[option2])
 
             st.write("レート変動")
-            mu_list = [mu for mu, _ in st.session_state.rate_dict[option2]]
+            mu_list = [mu for mu, _ in st.session_state.rate_dict[option2]["ALL"]]
             mu_list.reverse()
-            sigma_list = [sigma for _, sigma in st.session_state.rate_dict[option2]]
+            sigma_list = [
+                sigma for _, sigma in st.session_state.rate_dict[option2]["ALL"]
+            ]
             sigma_list.reverse()
             match_cnt_list = [
-                i for i in range(len(st.session_state.rate_dict[option2]))
+                i for i in range(len(st.session_state.rate_dict[option2]["ALL"]))
             ]
             fig, ax = plt.subplots()
             ax.plot(match_cnt_list, mu_list)
@@ -536,9 +569,9 @@ def page_balancer():
                     t3 = []
                     t4 = []
                     for player in a:
-                        t3.append(st.session_state.rate_dict[player][0])
+                        t3.append(st.session_state.rate_dict[player]["ALL"][0])
                     for player in b:
-                        t4.append(st.session_state.rate_dict[player][0])
+                        t4.append(st.session_state.rate_dict[player]["ALL"][0])
                     wp = win_probability(t3, t4, env=st.session_state.env)
                     wp_cnt += 1
                     if wp_cnt % 10 == 0:
@@ -551,7 +584,7 @@ def page_balancer():
                     rate = []
                     team_dict = {}
                     for player in team:
-                        rate.append(st.session_state.rate_dict[player][0].mu)
+                        rate.append(st.session_state.rate_dict[player]["ALL"][0].mu)
                     team = [i for _, i in sorted(zip(rate, team))]
                     ave_rate.append(statistics.mean(rate))
                     team_list = ["", "", "", "", ""]
