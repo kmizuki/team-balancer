@@ -141,14 +141,17 @@ def get_all_record():
                 ][0]
                 team2_p2[player_name] = position_dict[data.individualPosition]
 
+        win_team = (data.win == "Win" and data.team == 100) or (
+            data.win != "Win" and data.team != 100
+        )
         team1, team2, = st.session_state.env.rate(
             (
                 team1,
                 team2,
             ),
             ranks=(
-                0 + (data.win == "Win"),
-                1 - (data.win == "Win"),
+                1 - win_team,
+                0 + win_team,
             ),
         )
         team1_p, team2_p, = st.session_state.env.rate(
@@ -157,8 +160,8 @@ def get_all_record():
                 team2_p,
             ),
             ranks=(
-                0 + (data.win == "Win"),
-                1 - (data.win == "Win"),
+                1 - win_team,
+                0 + win_team,
             ),
         )
         for r_key in team1.keys():
@@ -200,7 +203,9 @@ def get_all_record():
                     df_type.at[position, "c_ward"] += data.visionWardsBoughtInGame
                 st.session_state.df_player_dict[player_name].at[
                     position, "rating"
-                ] = st.session_state.rate_dict[player_name][position][0].mu
+                ] = st.session_state.rate_dict[player_name][position][0].mu - (
+                    3.0 * st.session_state.rate_dict[player_name][position][0].sigma
+                )
 
     # データ正規化
     for dict_type in (
@@ -432,23 +437,19 @@ def page_record():
             st.dataframe(df_all_set_dict_styler[option2])
 
             st.write("レート変動")
-            mu_list = [mu for mu, _ in st.session_state.rate_dict[option2]["ALL"]]
-            mu_list.reverse()
-            sigma_list = [
-                sigma for _, sigma in st.session_state.rate_dict[option2]["ALL"]
+            mu_list = [
+                mu - (3.0 * sigma)
+                for mu, sigma in st.session_state.rate_dict[option2]["ALL"]
             ]
-            sigma_list.reverse()
+            mu_list.reverse()
             match_cnt_list = [
                 i for i in range(len(st.session_state.rate_dict[option2]["ALL"]))
             ]
-            fig, ax = plt.subplots()
+            fig, ax = plt.subplots(figsize=(12, 4))
             ax.plot(match_cnt_list, mu_list)
-            ax.errorbar(match_cnt_list, mu_list, yerr=sigma_list, fmt="o")
             ax.set_xlabel("match count")
             ax.set_ylabel("rating")
-            ax.set_ylim(0, 50)
             ax.grid(axis="y")
-            ax.set_yticks([i for i in range(50) if i % 5 == 0])
             st.pyplot(fig)
 
 
@@ -598,7 +599,13 @@ def page_balancer():
                         rate_pos = []
                         team_dict = {}
                         for player in team:
-                            rate.append(st.session_state.rate_dict[player]["ALL"][0].mu)
+                            rate.append(
+                                st.session_state.rate_dict[player]["ALL"][0].mu
+                                - (
+                                    3.0
+                                    * st.session_state.rate_dict[player]["ALL"][0].sigma
+                                )
+                            )
                         team = [i for _, i in sorted(zip(rate, team))]
                         team_list = ["", "", "", "", ""]
                         priority_sum = 0
@@ -636,6 +643,12 @@ def page_balancer():
                                         st.session_state.rate_dict[player][
                                             position_idx[tmp_list[i] + 1]
                                         ][0].mu
+                                        - (
+                                            3.0
+                                            * st.session_state.rate_dict[player][
+                                                position_idx[tmp_list[i] + 1]
+                                            ][0].sigma
+                                        )
                                     )
                                     team_pos[-1].append(
                                         st.session_state.rate_dict[player][
