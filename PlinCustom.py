@@ -95,6 +95,7 @@ def get_all_record():
         gold=[0, 0, 0, 0, 0, 0],
         c_ward=[0, 0, 0, 0, 0, 0],
         rating=[None, None, None, None, None, None],
+        tier=[None, None, None, None, None, None],
     )
     position_dict = {
         "TOP": "TOP",
@@ -203,9 +204,66 @@ def get_all_record():
                     df_type.at[position, "c_ward"] += data.visionWardsBoughtInGame
                 st.session_state.df_player_dict[player_name].at[
                     position, "rating"
-                ] = st.session_state.rate_dict[player_name][position][0].mu - (
-                    3.0 * st.session_state.rate_dict[player_name][position][0].sigma
-                )
+                ] = st.session_state.rate_dict[player_name][position][0].mu
+                rating = st.session_state.df_player_dict[player_name].at[
+                    position, "rating"
+                ]
+                tier = ""
+                if rating > 55.99:
+                    tier = "Challenger"
+                elif rating > 53.59:
+                    tier = "Grandmaster"
+                elif rating > 50.30:
+                    tier = "Master"
+                elif rating > 47.90:
+                    tier = "Diamond1"
+                elif rating > 45.98:
+                    tier = "Diamond2"
+                elif rating > 44.74:
+                    tier = "Diamond3"
+                elif rating > 42.89:
+                    tier = "Diamond4"
+                elif rating > 40.64:
+                    tier = "Platinum1"
+                elif rating > 39.23:
+                    tier = "Platinum2"
+                elif rating > 37.70:
+                    tier = "Platinum3"
+                elif rating > 34.79:
+                    tier = "Platinum4"
+                elif rating > 33.46:
+                    tier = "Gold1"
+                elif rating > 31.84:
+                    tier = "Gold2"
+                elif rating > 30.26:
+                    tier = "Gold3"
+                elif rating > 27.33:
+                    tier = "Gold4"
+                elif rating > 25.84:
+                    tier = "Silver1"
+                elif rating > 24.16:
+                    tier = "Silver2"
+                elif rating > 22.45:
+                    tier = "Silver3"
+                elif rating > 19.89:
+                    tier = "Silver4"
+                elif rating > 18.28:
+                    tier = "Bronze1"
+                elif rating > 16.00:
+                    tier = "Bronze2"
+                elif rating > 13.83:
+                    tier = "Bronze3"
+                elif rating > 10.41:
+                    tier = "Bronze4"
+                elif rating > 7.71:
+                    tier = "Iron1"
+                elif rating > 4.61:
+                    tier = "Iron2"
+                elif rating > 1.50:
+                    tier = "Iron3"
+                else:
+                    tier = "Iron4"
+                st.session_state.df_player_dict[player_name].at[position, "tier"] = tier
 
     # データ正規化
     for dict_type in (
@@ -437,10 +495,7 @@ def page_record():
             st.dataframe(df_all_set_dict_styler[option2])
 
             st.write("レート変動")
-            mu_list = [
-                mu - (3.0 * sigma)
-                for mu, sigma in st.session_state.rate_dict[option2]["ALL"]
-            ]
+            mu_list = [mu for mu, _ in st.session_state.rate_dict[option2]["ALL"]]
             mu_list.reverse()
             match_cnt_list = [
                 i for i in range(len(st.session_state.rate_dict[option2]["ALL"]))
@@ -599,13 +654,7 @@ def page_balancer():
                         rate_pos = []
                         team_dict = {}
                         for player in team:
-                            rate.append(
-                                st.session_state.rate_dict[player]["ALL"][0].mu
-                                - (
-                                    3.0
-                                    * st.session_state.rate_dict[player]["ALL"][0].sigma
-                                )
-                            )
+                            rate.append(st.session_state.rate_dict[player]["ALL"][0].mu)
                         team = [i for _, i in sorted(zip(rate, team))]
                         team_list = ["", "", "", "", ""]
                         priority_sum = 0
@@ -643,12 +692,6 @@ def page_balancer():
                                         st.session_state.rate_dict[player][
                                             position_idx[tmp_list[i] + 1]
                                         ][0].mu
-                                        - (
-                                            3.0
-                                            * st.session_state.rate_dict[player][
-                                                position_idx[tmp_list[i] + 1]
-                                            ][0].sigma
-                                        )
                                     )
                                     team_pos[-1].append(
                                         st.session_state.rate_dict[player][
