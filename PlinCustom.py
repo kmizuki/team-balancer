@@ -549,6 +549,7 @@ def page_balancer():
             "workman0215": [1, 4, 0, 3, 2],
             "Ñight": [1, 4, 3, 2, 0],
         }
+        position_idx = ["ALL", "TOP", "JNG", "MID", "BOT", "SUP"]
         st.write("チームバランサー")
 
         options5 = st.multiselect("参加者", st.session_state.df_player_dict.keys(), [])
@@ -556,82 +557,107 @@ def page_balancer():
             st.button("再振り分け")
             wp_min = 0.4
             wp_max = 0.6
-            priority_checking = True
-            priority_cnt = 0
-            priority_threshold = 2
-            while priority_checking:
-                wp_cnt = 0
-                wp = 0.0
-                while wp < wp_min or wp > wp_max:
-                    options5 = random.sample(options5, 10)
-                    a = options5[:5]
-                    b = options5[5:]
-                    t3 = []
-                    t4 = []
-                    for player in a:
-                        t3.append(st.session_state.rate_dict[player]["ALL"][0])
-                    for player in b:
-                        t4.append(st.session_state.rate_dict[player]["ALL"][0])
-                    wp = win_probability(t3, t4, env=st.session_state.env)
-                    wp_cnt += 1
-                    if wp_cnt % 10 == 0:
-                        wp_min -= 0.01
-                        wp_max += 0.01
-                teams = [a, b]
-                team_dict_list = []
-                ave_rate = []
-                for team in teams:
-                    rate = []
-                    team_dict = {}
-                    for player in team:
-                        rate.append(st.session_state.rate_dict[player]["ALL"][0].mu)
-                    team = [i for _, i in sorted(zip(rate, team))]
-                    ave_rate.append(statistics.mean(rate))
-                    team_list = ["", "", "", "", ""]
-                    priority_sum = 0
-                    for player in team:
-                        tmp_list = [0, 1, 2, 3, 4]
-                        if player in position_priority.keys():
-                            tmp_list = [
-                                i
-                                for _, i in sorted(
-                                    zip(position_priority[player], tmp_list)
-                                )
-                            ]
-                        else:
-                            role_weight = list(
-                                st.session_state.df_player_dict[player]["match_count"][
-                                    :
+            wp = 0.0
+            wp_cnt = 0
+            while wp < wp_min or wp > wp_max:
+                priority_checking = True
+                priority_cnt = 0
+                priority_threshold = 2
+                while priority_checking:
+                    wp_all_cnt = 0
+                    wp_all = 0.0
+                    wp_all_min = 0.4
+                    wp_all_max = 0.6
+                    while wp_all < wp_all_min or wp_all > wp_all_max:
+                        options5 = random.sample(options5, 10)
+                        a = options5[:5]
+                        b = options5[5:]
+                        t3 = []
+                        t4 = []
+                        for player in a:
+                            t3.append(st.session_state.rate_dict[player]["ALL"][0])
+                        for player in b:
+                            t4.append(st.session_state.rate_dict[player]["ALL"][0])
+                        wp_all = win_probability(t3, t4, env=st.session_state.env)
+                        wp_all_cnt += 1
+                        if wp_all_cnt % 5 == 0:
+                            wp_all_min -= 0.01
+                            wp_all_max += 0.01
+                    teams = [a, b]
+                    team_dict_list = []
+                    ave_rate = []
+                    team_pos = []
+                    for team in teams:
+                        team_pos.append([])
+                        rate = []
+                        rate_pos = []
+                        team_dict = {}
+                        for player in team:
+                            rate.append(st.session_state.rate_dict[player]["ALL"][0].mu)
+                        team = [i for _, i in sorted(zip(rate, team))]
+                        team_list = ["", "", "", "", ""]
+                        priority_sum = 0
+                        for player in team:
+                            tmp_list = [0, 1, 2, 3, 4]
+                            if player in position_priority.keys():
+                                tmp_list = [
+                                    i
+                                    for _, i in sorted(
+                                        zip(position_priority[player], tmp_list)
+                                    )
                                 ]
-                            )
-                            weight_list = []
-                            for i in range(5):
-                                weight_list.append(role_weight[i + 1] / role_weight[0])
-                            tmp_list = [
-                                i
-                                for _, i in sorted(
-                                    zip(weight_list, tmp_list), reverse=True
+                            else:
+                                role_weight = list(
+                                    st.session_state.df_player_dict[player][
+                                        "match_count"
+                                    ][:]
                                 )
-                            ]
-                        for i in range(5):
-                            if team_list[tmp_list[i]] == "":
-                                priority_sum += i
-                                team_list[tmp_list[i]] = player
-                                break
-                    if priority_sum <= priority_threshold:
-                        priority_checking = False
-                    else:
-                        priority_checking = True
-                        priority_cnt += 1
-                        if priority_cnt % 50 == 0:
-                            priority_threshold += 1
-                        break
-                    team_dict["TOP"] = team_list[0]
-                    team_dict["JNG"] = team_list[1]
-                    team_dict["MID"] = team_list[2]
-                    team_dict["BOT"] = team_list[3]
-                    team_dict["SUP"] = team_list[4]
-                    team_dict_list.append(team_dict)
+                                weight_list = []
+                                for i in range(5):
+                                    weight_list.append(
+                                        role_weight[i + 1] / role_weight[0]
+                                    )
+                                tmp_list = [
+                                    i
+                                    for _, i in sorted(
+                                        zip(weight_list, tmp_list), reverse=True
+                                    )
+                                ]
+                            for i in range(5):
+                                if team_list[tmp_list[i]] == "":
+                                    priority_sum += i
+                                    team_list[tmp_list[i]] = player
+                                    rate_pos.append(
+                                        st.session_state.rate_dict[player][
+                                            position_idx[tmp_list[i] + 1]
+                                        ][0].mu
+                                    )
+                                    team_pos[-1].append(
+                                        st.session_state.rate_dict[player][
+                                            position_idx[tmp_list[i] + 1]
+                                        ][0]
+                                    )
+                                    break
+                        if priority_sum <= priority_threshold:
+                            priority_checking = False
+                        else:
+                            priority_checking = True
+                            priority_cnt += 1
+                            if priority_cnt % 50 == 0:
+                                priority_threshold += 1
+                            break
+                        ave_rate.append(statistics.mean(rate_pos))
+                        team_dict["TOP"] = team_list[0]
+                        team_dict["JNG"] = team_list[1]
+                        team_dict["MID"] = team_list[2]
+                        team_dict["BOT"] = team_list[3]
+                        team_dict["SUP"] = team_list[4]
+                        team_dict_list.append(team_dict)
+                wp = win_probability(team_pos[0], team_pos[1], env=st.session_state.env)
+                wp_cnt += 1
+                if wp_cnt % 5 == 0:
+                    wp_min -= 0.01
+                    wp_max += 0.01
             col1, col2 = st.columns(2)
             with col1:
                 st.write(f"チームA平均レート: {ave_rate[0]:.1f}")
@@ -639,7 +665,7 @@ def page_balancer():
             with col2:
                 st.write(f"チームB平均レート: {ave_rate[1]:.1f}")
                 st.write(team_dict_list[1])
-            st.write(f"勝利予測: {wp*100.0:.0f}%")
+            st.write(f"勝敗予測: {wp*100.0:.0f}%")
             my_bar = st.progress(0)
             my_bar.progress(wp)
         else:
