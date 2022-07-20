@@ -1,5 +1,6 @@
 import itertools
 import math
+import os
 import random
 import statistics
 from io import BytesIO
@@ -37,10 +38,12 @@ def get_dataframe(_blobs, bucket_name, _client):
     df_list = []
     for blob in _blobs:
         file_path = blob.name
-
-        content = read_file(bucket_name, file_path, _client)
-
-        df = pd.read_csv(BytesIO(content))
+        if os.path.isfile(f"csv/{file_path}"):
+            df = pd.read_csv(f"csv/{file_path}")
+        else:
+            content = read_file(bucket_name, file_path, _client)
+            df = pd.read_csv(BytesIO(content))
+            df.to_csv(f"csv/{file_path}")
         df["cs"] = df["minionsKilled"] + df["neutralMinionsKilled"]
         df_list.append(df)
     return df_list
