@@ -1,10 +1,11 @@
-import datetime
 import itertools
 import math
 import os
 import random
 import statistics
+from datetime import datetime
 from io import BytesIO
+from zoneinfo import ZoneInfo
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -12,7 +13,7 @@ import streamlit as st
 import trueskill
 from google.cloud import storage
 from google.oauth2 import service_account
-from PIL import Image
+from PIL import Image, ImageOps
 
 
 def win_probability(team1, team2, env=None):
@@ -756,8 +757,9 @@ def page_benzaiten():
                     for path_line in path_lines:
                         fp.write(path_line)
                 img = Image.open(uploaded_file)
-                img.save(f"images/{uploaded_file.name}")
-                dt_now = datetime.datetime.now()
+                orientation = ImageOps.exif_transpose(img)
+                orientation.save(f"images/{uploaded_file.name}")
+                dt_now = datetime.now(ZoneInfo("Asia/Tokyo"))
                 lines.insert(
                     0, f"[{dt_now.strftime('%Y年%m月%d日 %H:%M:%S')}]    {text}\n"
                 )
