@@ -1,3 +1,4 @@
+import datetime
 import itertools
 import math
 import os
@@ -51,7 +52,7 @@ def get_dataframe(_blobs, bucket_name, _client):
 
 st.set_page_config(
     page_title="PlinCustom",
-    page_icon="garen.jpeg",
+    page_icon="images/garen.jpeg",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -738,8 +739,64 @@ def page_balancer():
 def page_benzaiten():
     st.title("今日の弁財天")
 
-    img = Image.open("benzaiten2.jpeg")
-    st.image(img, use_column_width=True)
+    path = "benzaiten.txt"
+    images_path = "images.txt"
+    cnt = 0
+    all_lines = []
+
+    def update(text, uploaded_file):
+        with open(path, "r") as f:
+            lines = f.readlines()
+        with open(path, "w") as f:
+            if text != "":
+                with open(images_path, "r") as fp:
+                    path_lines = fp.readlines()
+                path_lines.insert(0, f"{uploaded_file.name}\n")
+                with open(images_path, "w") as fp:
+                    for path_line in path_lines:
+                        fp.write(path_line)
+                img = Image.open(uploaded_file)
+                img.save(f"images/{uploaded_file.name}")
+                dt_now = datetime.datetime.now()
+                lines.insert(
+                    0, f"[{dt_now.strftime('%Y年%m月%d日 %H:%M:%S')}]    {text}\n"
+                )
+            for line in lines:
+                f.write(line)
+
+    def delete(i):
+        with open(path, "r") as f:
+            lines = f.readlines()
+        with open(path, "w") as f:
+            for j, line in enumerate(lines):
+                if j != i:
+                    f.write(line)
+        with open(images_path, "r") as f:
+            lines = f.readlines()
+        with open(images_path, "w") as f:
+            for j, line in enumerate(lines):
+                if j != i:
+                    f.write(line)
+
+    with st.form(key="my_form", clear_on_submit=True):
+        text = st.text_input("コメント", value="", key="text_value")
+        uploaded_file = st.file_uploader(label="画像を選択", type=["png", "jpeg", "jpg"])
+        if st.form_submit_button(label="送信"):
+            if uploaded_file is not None:
+                update(text, uploaded_file)
+
+    with open(path, "r") as f:
+        for s_line in f:
+            all_lines.append(s_line)
+            cnt += 1
+    with open(images_path, "r") as fp:
+        image_paths = fp.readlines()
+    for i in range(cnt):
+        with st.form(key=f"form_{i}", clear_on_submit=True):
+            st.write(all_lines[i])
+            st.image(f"images/{image_paths[i].rstrip()}")
+            if st.form_submit_button(label="削除"):
+                delete(i)
 
 
 selected_page = st.sidebar.radio("Menu", ["Record", "History", "Balancer", "Benzaiten"])
