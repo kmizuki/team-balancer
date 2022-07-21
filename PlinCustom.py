@@ -209,60 +209,62 @@ def get_all_record():
                     position, "rating"
                 ]
                 tier = ""
-                if rating > 55.99:
+                if rating > 55.44:
                     tier = "Challenger"
-                elif rating > 53.59:
+                elif rating > 52.72:
                     tier = "Grandmaster"
-                elif rating > 50.30:
+                elif rating > 48.93:
                     tier = "Master"
-                elif rating > 47.90:
+                elif rating > 46.50:
                     tier = "Diamond1"
-                elif rating > 45.98:
+                elif rating > 44.77:
                     tier = "Diamond2"
-                elif rating > 44.74:
+                elif rating > 43.72:
                     tier = "Diamond3"
-                elif rating > 42.89:
+                elif rating > 42.30:
                     tier = "Diamond4"
-                elif rating > 40.64:
+                elif rating > 40.11:
                     tier = "Platinum1"
-                elif rating > 39.23:
+                elif rating > 38.79:
                     tier = "Platinum2"
-                elif rating > 37.70:
+                elif rating > 37.43:
                     tier = "Platinum3"
-                elif rating > 34.79:
+                elif rating > 34.88:
                     tier = "Platinum4"
-                elif rating > 33.46:
+                elif rating > 33.64:
                     tier = "Gold1"
-                elif rating > 31.84:
+                elif rating > 32.17:
                     tier = "Gold2"
-                elif rating > 30.26:
+                elif rating > 30.75:
                     tier = "Gold3"
-                elif rating > 27.33:
+                elif rating > 28.10:
                     tier = "Gold4"
-                elif rating > 25.84:
+                elif rating > 26.60:
                     tier = "Silver1"
-                elif rating > 24.16:
+                elif rating > 24.86:
                     tier = "Silver2"
-                elif rating > 22.45:
+                elif rating > 23.32:
                     tier = "Silver3"
-                elif rating > 19.89:
+                elif rating > 20.87:
                     tier = "Silver4"
-                elif rating > 18.28:
+                elif rating > 19.01:
                     tier = "Bronze1"
-                elif rating > 16.00:
+                elif rating > 16.95:
                     tier = "Bronze2"
-                elif rating > 13.83:
+                elif rating > 14.96:
                     tier = "Bronze3"
-                elif rating > 10.41:
+                elif rating > 11.76:
                     tier = "Bronze4"
-                elif rating > 7.71:
+                elif rating > 9.69:
                     tier = "Iron1"
-                elif rating > 4.61:
+                elif rating > 7.90:
                     tier = "Iron2"
-                elif rating > 1.50:
+                elif rating > 6.68:
                     tier = "Iron3"
-                else:
+                elif rating > 5.78:
                     tier = "Iron4"
+                else:
+                    tier = "Unrank"
                 st.session_state.df_player_dict[player_name].at[position, "tier"] = tier
 
     # データ正規化
