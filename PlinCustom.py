@@ -341,6 +341,31 @@ def get_all_record():
         )
 
 
+def cell_style(value):
+    if not value:
+        return "background-color: black; color: white"
+    elif value == "Challenger":
+        return "background-color: #E5CC5B; color: black"
+    elif value == "Grandmaster":
+        return "background-color: #E55B5E; color: black"
+    elif value == "Master":
+        return "background-color: #E55BCE; color: black"
+    elif "Diamond" in (value):
+        return "background-color: #5B82E5; color: black"
+    elif "Platinum" in (value):
+        return "background-color: #5BE5B9; color: black"
+    elif "Gold" in (value):
+        return "background-color: #FFF200; color: black"
+    elif "Silver" in (value):
+        return "background-color: #CED8E5; color: black"
+    elif "Bronze" in (value):
+        return "background-color: #995E4C; color: white"
+    elif "Iron" in (value):
+        return "background-color: #665F5B; color: white"
+    else:
+        return "background-color: white; color: black"
+
+
 def page_record():
     if st.button("データ更新"):
         for key in st.session_state.keys():
@@ -351,6 +376,8 @@ def page_record():
             del st.session_state[key]
         get_all_record()
 
+    # cmap = ListedColormap(["red", "blue", "green", "yellow"])
+    # bounds = ["Challenger", "Grandmaster", "Master", "Diamond1",]
     if "df_all_dict" in st.session_state:
         df_all_dict_styler = {}
         for keys in st.session_state.df_all_dict.keys():
@@ -386,6 +413,7 @@ def page_record():
                 .background_gradient(axis=0, subset="gold", cmap="RdYlGn")
                 .background_gradient(axis=0, subset="c_ward", cmap="RdYlGn")
                 .background_gradient(axis=0, subset="rating", cmap="RdYlGn")
+                .applymap(cell_style, subset="tier")
             )
         df_all_champion_dict_styler = {}
         for keys in st.session_state.df_all_champion_dict.keys():
@@ -505,7 +533,7 @@ def page_record():
                 i for i in range(len(st.session_state.rate_dict[option2]["ALL"]))
             ]
             fig, ax = plt.subplots(figsize=(12, 4))
-            ax.plot(match_cnt_list, mu_list)
+            ax.plot(match_cnt_list, mu_list, marker="o")
             ax.set_xlabel("match count")
             ax.set_ylabel("rating")
             ax.grid(axis="y")
