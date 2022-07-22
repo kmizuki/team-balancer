@@ -376,8 +376,6 @@ def page_record():
             del st.session_state[key]
         get_all_record()
 
-    # cmap = ListedColormap(["red", "blue", "green", "yellow"])
-    # bounds = ["Challenger", "Grandmaster", "Master", "Diamond1",]
     if "df_all_dict" in st.session_state:
         df_all_dict_styler = {}
         for keys in st.session_state.df_all_dict.keys():
