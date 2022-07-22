@@ -526,7 +526,21 @@ def page_record():
                     st.dataframe(df_all_champion_dict_styler[option1])
             with tab4:
                 if df_player_dict_styler != {}:
-                    option2 = st.selectbox("プレイヤーの選択", df_player_dict_styler.keys())
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        option2 = st.selectbox("プレイヤーの選択", df_player_dict_styler.keys())
+                    with col2:
+                        st.metric(
+                            label="現在レート",
+                            value=round(
+                                st.session_state.rate_dict[option2]["ALL"][0].mu, 2
+                            ),
+                            delta=round(
+                                st.session_state.rate_dict[option2]["ALL"][0].mu
+                                - st.session_state.rate_dict[option2]["ALL"][1].mu,
+                                2,
+                            ),
+                        )
 
                     st.dataframe(df_player_dict_styler[option2])
                     st.dataframe(df_all_set_dict_styler[option2])
