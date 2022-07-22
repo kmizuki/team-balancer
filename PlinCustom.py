@@ -518,13 +518,13 @@ def page_record():
                     },
                     na_rep="-",
                 )
-            tab1, tab2 = st.tabs(["総合戦績", "個人戦績"])
-            with tab1:
+            tab3, tab4 = st.tabs(["総合戦績", "個人戦績"])
+            with tab3:
                 if df_all_dict_styler != {}:
                     option1 = st.selectbox("ポジションの選択", df_all_dict_styler.keys())
                     st.dataframe(df_all_dict_styler[option1])
                     st.dataframe(df_all_champion_dict_styler[option1])
-            with tab2:
+            with tab4:
                 if df_player_dict_styler != {}:
                     option2 = st.selectbox("プレイヤーの選択", df_player_dict_styler.keys())
 
