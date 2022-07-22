@@ -1,4 +1,3 @@
-import codecs
 import itertools
 import json
 import math
@@ -43,23 +42,11 @@ def get_dataframe(_blobs, bucket_name, _client):
     for blob in _blobs:
         file_path = blob.name
         if file_path == "players_name.json":
-            if os.path.isfile(f"json/{file_path}"):
-                with codecs.open(f"json/{file_path}", "r") as fp:
-                    name_dict = json.load(fp)
-            else:
-                content = read_file(bucket_name, file_path, _client)
-                name_dict = json.loads(content)
-                with codecs.open(f"json/{file_path}", "w", "utf-8") as fp:
-                    json.dump(name_dict, fp, ensure_ascii=False)
+            content = read_file(bucket_name, file_path, _client)
+            name_dict = json.loads(content)
         elif file_path == "position_priority.json":
-            if os.path.isfile(f"json/{file_path}"):
-                with codecs.open(f"json/{file_path}", "r") as fp:
-                    position_priority = json.load(fp)
-            else:
-                content = read_file(bucket_name, file_path, _client)
-                position_priority = json.loads(content)
-                with codecs.open(f"json/{file_path}", "w", "utf-8") as fp:
-                    json.dump(position_priority, fp, ensure_ascii=False)
+            content = read_file(bucket_name, file_path, _client)
+            position_priority = json.loads(content)
         else:
             if os.path.isfile(f"csv/{file_path}"):
                 df = pd.read_csv(f"csv/{file_path}")
