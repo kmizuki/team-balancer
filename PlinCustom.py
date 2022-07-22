@@ -372,24 +372,99 @@ def cell_style(value):
 
 
 def page_record():
-    if st.button("データ更新"):
-        for key in st.session_state.keys():
-            del st.session_state[key]
-        get_all_record()
-    if "df_all_dict" not in st.session_state:
-        for key in st.session_state.keys():
-            del st.session_state[key]
-        get_all_record()
+    with st.spinner("読み込み中"):
+        if st.button("データ更新"):
+            for key in st.session_state.keys():
+                del st.session_state[key]
+            get_all_record()
+        if "df_all_dict" not in st.session_state:
+            for key in st.session_state.keys():
+                del st.session_state[key]
+            get_all_record()
 
-    if "df_all_dict" in st.session_state:
-        df_all_dict_styler = {}
-        for keys in st.session_state.df_all_dict.keys():
-            st.session_state.df_all_dict[keys] = st.session_state.df_all_dict[
-                keys
-            ].sort_values("rating", ascending=False)
-            df_all_dict_styler[keys] = (
-                st.session_state.df_all_dict[keys]
-                .style.format(
+        if "df_all_dict" in st.session_state:
+            df_all_dict_styler = {}
+            for keys in st.session_state.df_all_dict.keys():
+                st.session_state.df_all_dict[keys] = st.session_state.df_all_dict[
+                    keys
+                ].sort_values("rating", ascending=False)
+                df_all_dict_styler[keys] = (
+                    st.session_state.df_all_dict[keys]
+                    .style.format(
+                        formatter={
+                            "match_count": "{:.0f}",
+                            "win_count": "{:.0f}",
+                            "win_rate": "{:.2f}",
+                            "kill": "{:.1f}",
+                            "death": "{:.1f}",
+                            "assist": "{:.1f}",
+                            "kda": "{:.2f}",
+                            "cs": "{:.0f}",
+                            "gold": "{:.0f}",
+                            "c_ward": "{:.1f}",
+                            "rating": "{:.1f}",
+                        },
+                        na_rep="-",
+                    )
+                    .background_gradient(axis=0, subset="match_count", cmap="RdYlGn")
+                    .background_gradient(axis=0, subset="win_count", cmap="RdYlGn")
+                    .background_gradient(axis=0, subset="win_rate", cmap="RdYlGn")
+                    .background_gradient(axis=0, subset="kill", cmap="RdYlGn")
+                    .background_gradient(axis=0, subset="death", cmap="RdYlGn_r")
+                    .background_gradient(axis=0, subset="assist", cmap="RdYlGn")
+                    .background_gradient(axis=0, subset="kda", cmap="RdYlGn")
+                    .background_gradient(axis=0, subset="cs", cmap="RdYlGn")
+                    .background_gradient(axis=0, subset="gold", cmap="RdYlGn")
+                    .background_gradient(axis=0, subset="c_ward", cmap="RdYlGn")
+                    .background_gradient(axis=0, subset="rating", cmap="RdYlGn")
+                    .applymap(cell_style, subset="tier")
+                )
+            df_all_champion_dict_styler = {}
+            for keys in st.session_state.df_all_champion_dict.keys():
+                st.session_state.df_all_champion_dict[
+                    keys
+                ] = st.session_state.df_all_champion_dict[keys].sort_values(
+                    "match_count", ascending=False
+                )
+                df_all_champion_dict_styler[keys] = (
+                    st.session_state.df_all_champion_dict[keys]
+                    .style.format(
+                        formatter={
+                            "match_count": "{:.0f}",
+                            "win_count": "{:.0f}",
+                            "win_rate": "{:.2f}",
+                            "kill": "{:.1f}",
+                            "death": "{:.1f}",
+                            "assist": "{:.1f}",
+                            "kda": "{:.2f}",
+                            "cs": "{:.0f}",
+                            "gold": "{:.0f}",
+                            "c_ward": "{:.1f}",
+                            "rating": "{:.1f}",
+                        },
+                        na_rep="-",
+                    )
+                    .background_gradient(axis=0, subset="match_count", cmap="RdYlGn")
+                    .background_gradient(axis=0, subset="win_count", cmap="RdYlGn")
+                    .background_gradient(axis=0, subset="win_rate", cmap="RdYlGn")
+                    .background_gradient(axis=0, subset="kill", cmap="RdYlGn")
+                    .background_gradient(axis=0, subset="death", cmap="RdYlGn_r")
+                    .background_gradient(axis=0, subset="assist", cmap="RdYlGn")
+                    .background_gradient(axis=0, subset="kda", cmap="RdYlGn")
+                    .background_gradient(axis=0, subset="cs", cmap="RdYlGn")
+                    .background_gradient(axis=0, subset="gold", cmap="RdYlGn")
+                    .background_gradient(axis=0, subset="c_ward", cmap="RdYlGn")
+                )
+            df_all_set_dict_styler = {}
+            for keys in st.session_state.df_all_set_dict.keys():
+                st.session_state.df_all_set_dict[
+                    keys
+                ] = st.session_state.df_all_set_dict[keys].sort_values(
+                    "match_count", ascending=False
+                )
+                df_all_set_dict_styler[keys] = st.session_state.df_all_set_dict[
+                    keys
+                ].style.format(
                     formatter={
                         "match_count": "{:.0f}",
                         "win_count": "{:.0f}",
@@ -405,32 +480,14 @@ def page_record():
                     },
                     na_rep="-",
                 )
-                .background_gradient(axis=0, subset="match_count", cmap="RdYlGn")
-                .background_gradient(axis=0, subset="win_count", cmap="RdYlGn")
-                .background_gradient(axis=0, subset="win_rate", cmap="RdYlGn")
-                .background_gradient(axis=0, subset="kill", cmap="RdYlGn")
-                .background_gradient(axis=0, subset="death", cmap="RdYlGn_r")
-                .background_gradient(axis=0, subset="assist", cmap="RdYlGn")
-                .background_gradient(axis=0, subset="kda", cmap="RdYlGn")
-                .background_gradient(axis=0, subset="cs", cmap="RdYlGn")
-                .background_gradient(axis=0, subset="gold", cmap="RdYlGn")
-                .background_gradient(axis=0, subset="c_ward", cmap="RdYlGn")
-                .background_gradient(axis=0, subset="rating", cmap="RdYlGn")
-                .applymap(cell_style, subset="tier")
-            )
-        df_all_champion_dict_styler = {}
-        for keys in st.session_state.df_all_champion_dict.keys():
-            st.session_state.df_all_champion_dict[
-                keys
-            ] = st.session_state.df_all_champion_dict[keys].sort_values(
-                "match_count", ascending=False
-            )
-            df_all_champion_dict_styler[keys] = (
-                st.session_state.df_all_champion_dict[keys]
-                .style.format(
+
+            # フォーマット
+            df_player_dict_styler = {}
+            for keys in st.session_state.df_player_dict.keys():
+                df_player_dict_styler[keys] = st.session_state.df_player_dict[
+                    keys
+                ].style.format(
                     formatter={
-                        "match_count": "{:.0f}",
-                        "win_count": "{:.0f}",
                         "win_rate": "{:.2f}",
                         "kill": "{:.1f}",
                         "death": "{:.1f}",
@@ -443,374 +500,336 @@ def page_record():
                     },
                     na_rep="-",
                 )
-                .background_gradient(axis=0, subset="match_count", cmap="RdYlGn")
-                .background_gradient(axis=0, subset="win_count", cmap="RdYlGn")
-                .background_gradient(axis=0, subset="win_rate", cmap="RdYlGn")
-                .background_gradient(axis=0, subset="kill", cmap="RdYlGn")
-                .background_gradient(axis=0, subset="death", cmap="RdYlGn_r")
-                .background_gradient(axis=0, subset="assist", cmap="RdYlGn")
-                .background_gradient(axis=0, subset="kda", cmap="RdYlGn")
-                .background_gradient(axis=0, subset="cs", cmap="RdYlGn")
-                .background_gradient(axis=0, subset="gold", cmap="RdYlGn")
-                .background_gradient(axis=0, subset="c_ward", cmap="RdYlGn")
-            )
-        df_all_set_dict_styler = {}
-        for keys in st.session_state.df_all_set_dict.keys():
-            st.session_state.df_all_set_dict[keys] = st.session_state.df_all_set_dict[
-                keys
-            ].sort_values("match_count", ascending=False)
-            df_all_set_dict_styler[keys] = st.session_state.df_all_set_dict[
-                keys
-            ].style.format(
-                formatter={
-                    "match_count": "{:.0f}",
-                    "win_count": "{:.0f}",
-                    "win_rate": "{:.2f}",
-                    "kill": "{:.1f}",
-                    "death": "{:.1f}",
-                    "assist": "{:.1f}",
-                    "kda": "{:.2f}",
-                    "cs": "{:.0f}",
-                    "gold": "{:.0f}",
-                    "c_ward": "{:.1f}",
-                    "rating": "{:.1f}",
-                },
-                na_rep="-",
-            )
+            df_champion_dict_styler = {}
+            for keys in st.session_state.df_champion_dict.keys():
+                df_champion_dict_styler[keys] = st.session_state.df_champion_dict[
+                    keys
+                ].style.format(
+                    formatter={
+                        "win_rate": "{:.2f}",
+                        "kill": "{:.1f}",
+                        "death": "{:.1f}",
+                        "assist": "{:.1f}",
+                        "kda": "{:.2f}",
+                        "cs": "{:.0f}",
+                        "gold": "{:.0f}",
+                        "c_ward": "{:.1f}",
+                        "rating": "{:.1f}",
+                    },
+                    na_rep="-",
+                )
+            tab1, tab2 = st.tabs(["総合戦績", "個人戦績"])
+            with tab1:
+                if df_all_dict_styler != {}:
+                    option1 = st.selectbox("ポジションの選択", df_all_dict_styler.keys())
+                    st.dataframe(df_all_dict_styler[option1])
+                    st.dataframe(df_all_champion_dict_styler[option1])
+            with tab2:
+                if df_player_dict_styler != {}:
+                    option2 = st.selectbox("プレイヤーの選択", df_player_dict_styler.keys())
 
-        # フォーマット
-        df_player_dict_styler = {}
-        for keys in st.session_state.df_player_dict.keys():
-            df_player_dict_styler[keys] = st.session_state.df_player_dict[
-                keys
-            ].style.format(
-                formatter={
-                    "win_rate": "{:.2f}",
-                    "kill": "{:.1f}",
-                    "death": "{:.1f}",
-                    "assist": "{:.1f}",
-                    "kda": "{:.2f}",
-                    "cs": "{:.0f}",
-                    "gold": "{:.0f}",
-                    "c_ward": "{:.1f}",
-                    "rating": "{:.1f}",
-                },
-                na_rep="-",
-            )
-        df_champion_dict_styler = {}
-        for keys in st.session_state.df_champion_dict.keys():
-            df_champion_dict_styler[keys] = st.session_state.df_champion_dict[
-                keys
-            ].style.format(
-                formatter={
-                    "win_rate": "{:.2f}",
-                    "kill": "{:.1f}",
-                    "death": "{:.1f}",
-                    "assist": "{:.1f}",
-                    "kda": "{:.2f}",
-                    "cs": "{:.0f}",
-                    "gold": "{:.0f}",
-                    "c_ward": "{:.1f}",
-                    "rating": "{:.1f}",
-                },
-                na_rep="-",
-            )
-        tab1, tab2 = st.tabs(["総合戦績", "個人戦績"])
-        with tab1:
-            if df_all_dict_styler != {}:
-                option1 = st.selectbox("ポジションの選択", df_all_dict_styler.keys())
-                st.dataframe(df_all_dict_styler[option1])
-                st.dataframe(df_all_champion_dict_styler[option1])
-        with tab2:
-            if df_player_dict_styler != {}:
-                option2 = st.selectbox("プレイヤーの選択", df_player_dict_styler.keys())
+                    st.dataframe(df_player_dict_styler[option2])
+                    st.dataframe(df_all_set_dict_styler[option2])
 
-                st.dataframe(df_player_dict_styler[option2])
-                st.dataframe(df_all_set_dict_styler[option2])
-
-                st.write("レート変動")
-                mu_list = [mu for mu, _ in st.session_state.rate_dict[option2]["ALL"]]
-                mu_list.reverse()
-                match_cnt_list = [
-                    i for i in range(len(st.session_state.rate_dict[option2]["ALL"]))
-                ]
-                fig, ax = plt.subplots(figsize=(12, 4))
-                ax.plot(match_cnt_list, mu_list, marker="o")
-                ax.set_xlabel("match count")
-                ax.set_ylabel("rating")
-                ax.grid(axis="y")
-                st.pyplot(fig)
+                    st.write("レート変動")
+                    mu_list = [
+                        mu for mu, _ in st.session_state.rate_dict[option2]["ALL"]
+                    ]
+                    mu_list.reverse()
+                    match_cnt_list = [
+                        i
+                        for i in range(len(st.session_state.rate_dict[option2]["ALL"]))
+                    ]
+                    fig, ax = plt.subplots(figsize=(12, 4))
+                    ax.plot(match_cnt_list, mu_list, marker="o")
+                    ax.set_xlabel("match count")
+                    ax.set_ylabel("rating")
+                    ax.grid(axis="y")
+                    st.pyplot(fig)
 
 
 def page_history():
-    if st.button("データ更新"):
-        for key in st.session_state.keys():
-            del st.session_state[key]
-        get_all_record()
-    if "df_list" not in st.session_state:
-        for key in st.session_state.keys():
-            del st.session_state[key]
-        get_all_record()
-    if "df_list" in st.session_state:
-        i = len(list(st.session_state.df_list))
-        for df in reversed(list(st.session_state.df_list)):
-            st.write(f"match {i}")
-            df = df.set_index("player", drop=False)
-            df = df.rename(
-                columns={
-                    "championsKilled": "kill",
-                    "assists": "assist",
-                    "goldEarned": "gold",
-                    "individualPosition": "position",
-                    "numDeaths": "death",
-                    "skin": "champion",
-                    "team": "side",
-                    "visionWardsBoughtInGame": "c_ward",
-                }
-            )
-            df.loc[df["death"] == 0, "kda"] = df["kill"] + df["assist"]
-            df.loc[~(df["death"] == 0), "kda"] = (df["kill"] + df["assist"]) / df[
-                "death"
-            ]
-            df["cs"] = df["minionsKilled"] + df["neutralMinionsKilled"]
-            df1 = df[0:5]
-            df2 = df[5:10]
-            pos_order = ["TOP", "JUNGLE", "MIDDLE", "BOTTOM", "UTILITY"]
-            df_cp1 = df1.copy()
-            df_cp2 = df2.copy()
-            df_cp1.loc[:, "order"] = df1["position"].apply(
-                lambda x: pos_order.index(x) if x in pos_order else -1
-            )
-            df_cp2.loc[:, "order"] = df2["position"].apply(
-                lambda x: pos_order.index(x) if x in pos_order else -1
-            )
-            df_cp1 = df_cp1.sort_values("order")
-            df_cp2 = df_cp2.sort_values("order")
-            drop_col = [
-                "player",
-                "order",
-                "minionsKilled",
-                "neutralMinionsKilled",
-                "position",
-            ]
-            df_cp1 = df_cp1.drop(drop_col, axis=1)
-            df_cp2 = df_cp2.drop(drop_col, axis=1)
-            columns_order = [
-                "champion",
-                "kill",
-                "death",
-                "assist",
-                "kda",
-                "cs",
-                "gold",
-                "c_ward",
-                "win",
-                "side",
-            ]
-            df_cp1 = df_cp1.reindex(columns=columns_order)
-            df_cp2 = df_cp2.reindex(columns=columns_order)
-            df_cp1 = df_cp1.style.format(formatter={"kda": "{:.2f}"})
-            df_cp2 = df_cp2.style.format(formatter={"kda": "{:.2f}"})
-            st.table(df_cp1)
-            st.table(df_cp2)
-            i -= 1
+    with st.spinner("読み込み中"):
+        if st.button("データ更新"):
+            for key in st.session_state.keys():
+                del st.session_state[key]
+            get_all_record()
+        if "df_list" not in st.session_state:
+            for key in st.session_state.keys():
+                del st.session_state[key]
+            get_all_record()
+        if "df_list" in st.session_state:
+            i = len(list(st.session_state.df_list))
+            for df in reversed(list(st.session_state.df_list)):
+                st.write(f"match {i}")
+                df = df.set_index("player", drop=False)
+                df = df.rename(
+                    columns={
+                        "championsKilled": "kill",
+                        "assists": "assist",
+                        "goldEarned": "gold",
+                        "individualPosition": "position",
+                        "numDeaths": "death",
+                        "skin": "champion",
+                        "team": "side",
+                        "visionWardsBoughtInGame": "c_ward",
+                    }
+                )
+                df.loc[df["death"] == 0, "kda"] = df["kill"] + df["assist"]
+                df.loc[~(df["death"] == 0), "kda"] = (df["kill"] + df["assist"]) / df[
+                    "death"
+                ]
+                df["cs"] = df["minionsKilled"] + df["neutralMinionsKilled"]
+                df1 = df[0:5]
+                df2 = df[5:10]
+                pos_order = ["TOP", "JUNGLE", "MIDDLE", "BOTTOM", "UTILITY"]
+                df_cp1 = df1.copy()
+                df_cp2 = df2.copy()
+                df_cp1.loc[:, "order"] = df1["position"].apply(
+                    lambda x: pos_order.index(x) if x in pos_order else -1
+                )
+                df_cp2.loc[:, "order"] = df2["position"].apply(
+                    lambda x: pos_order.index(x) if x in pos_order else -1
+                )
+                df_cp1 = df_cp1.sort_values("order")
+                df_cp2 = df_cp2.sort_values("order")
+                drop_col = [
+                    "player",
+                    "order",
+                    "minionsKilled",
+                    "neutralMinionsKilled",
+                    "position",
+                ]
+                df_cp1 = df_cp1.drop(drop_col, axis=1)
+                df_cp2 = df_cp2.drop(drop_col, axis=1)
+                columns_order = [
+                    "champion",
+                    "kill",
+                    "death",
+                    "assist",
+                    "kda",
+                    "cs",
+                    "gold",
+                    "c_ward",
+                    "win",
+                    "side",
+                ]
+                df_cp1 = df_cp1.reindex(columns=columns_order)
+                df_cp2 = df_cp2.reindex(columns=columns_order)
+                df_cp1 = df_cp1.style.format(formatter={"kda": "{:.2f}"})
+                df_cp2 = df_cp2.style.format(formatter={"kda": "{:.2f}"})
+                st.table(df_cp1)
+                st.table(df_cp2)
+                i -= 1
 
 
 def page_balancer():
-    if st.button("データ更新"):
-        for key in st.session_state.keys():
-            del st.session_state[key]
-        get_all_record()
-    if "df_player_dict" not in st.session_state:
-        for key in st.session_state.keys():
-            del st.session_state[key]
-        get_all_record()
-    if "df_player_dict" in st.session_state:
-        position_idx = ["ALL", "TOP", "JNG", "MID", "BOT", "SUP"]
-        tab1, tab2 = st.tabs(["チームバランサー", "シミュレーター"])
-        with tab1:
-            options5 = st.multiselect("参加者", st.session_state.df_player_dict.keys(), [])
-            if len(options5) == 10:
-                st.button("再振り分け")
-                wp_min = 0.4
-                wp_max = 0.6
-                wp = 0.0
-                wp_cnt = 0
-                while wp < wp_min or wp > wp_max:
-                    priority_checking = True
-                    priority_cnt = 0
-                    priority_threshold = 2
-                    while priority_checking:
-                        wp_all_cnt = 0
-                        wp_all = 0.0
-                        wp_all_min = 0.4
-                        wp_all_max = 0.6
-                        while wp_all < wp_all_min or wp_all > wp_all_max:
-                            options5 = random.sample(options5, 10)
-                            a = options5[:5]
-                            b = options5[5:]
-                            t3 = []
-                            t4 = []
-                            for player in a:
-                                t3.append(st.session_state.rate_dict[player]["ALL"][0])
-                            for player in b:
-                                t4.append(st.session_state.rate_dict[player]["ALL"][0])
-                            wp_all = win_probability(t3, t4, env=st.session_state.env)
-                            wp_all_cnt += 1
-                            if wp_all_cnt % 5 == 0:
-                                wp_all_min -= 0.01
-                                wp_all_max += 0.01
-                        teams = [a, b]
-                        team_dict_list = []
-                        ave_rate = []
-                        team_pos = []
-                        for team in teams:
-                            team_pos.append([])
-                            rate = []
-                            rate_pos = []
-                            team_dict = {}
-                            for player in team:
-                                rate.append(
-                                    st.session_state.rate_dict[player]["ALL"][0].mu
-                                )
-                            team = [i for _, i in sorted(zip(rate, team))]
-                            team_list = ["", "", "", "", ""]
-                            priority_sum = 0
-                            for player in team:
-                                tmp_list = [0, 1, 2, 3, 4]
-                                if player in st.session_state.position_priority.keys():
-                                    tmp_list = [
-                                        i
-                                        for _, i in sorted(
-                                            zip(
-                                                st.session_state.position_priority[
-                                                    player
-                                                ],
-                                                tmp_list,
-                                            )
-                                        )
-                                    ]
-                                else:
-                                    role_weight = list(
-                                        st.session_state.df_player_dict[player][
-                                            "match_count"
-                                        ][:]
+    with st.spinner("読み込み中"):
+        if st.button("データ更新"):
+            for key in st.session_state.keys():
+                del st.session_state[key]
+            get_all_record()
+        if "df_player_dict" not in st.session_state:
+            for key in st.session_state.keys():
+                del st.session_state[key]
+            get_all_record()
+        if "df_player_dict" in st.session_state:
+            position_idx = ["ALL", "TOP", "JNG", "MID", "BOT", "SUP"]
+            tab1, tab2 = st.tabs(["チームバランサー", "シミュレーター"])
+            with tab1:
+                options5 = st.multiselect(
+                    "参加者", st.session_state.df_player_dict.keys(), []
+                )
+                if len(options5) == 10:
+                    st.button("再振り分け")
+                    wp_min = 0.4
+                    wp_max = 0.6
+                    wp = 0.0
+                    wp_cnt = 0
+                    while wp < wp_min or wp > wp_max:
+                        priority_checking = True
+                        priority_cnt = 0
+                        priority_threshold = 2
+                        while priority_checking:
+                            wp_all_cnt = 0
+                            wp_all = 0.0
+                            wp_all_min = 0.4
+                            wp_all_max = 0.6
+                            while wp_all < wp_all_min or wp_all > wp_all_max:
+                                options5 = random.sample(options5, 10)
+                                a = options5[:5]
+                                b = options5[5:]
+                                t3 = []
+                                t4 = []
+                                for player in a:
+                                    t3.append(
+                                        st.session_state.rate_dict[player]["ALL"][0]
                                     )
-                                    weight_list = []
+                                for player in b:
+                                    t4.append(
+                                        st.session_state.rate_dict[player]["ALL"][0]
+                                    )
+                                wp_all = win_probability(
+                                    t3, t4, env=st.session_state.env
+                                )
+                                wp_all_cnt += 1
+                                if wp_all_cnt % 5 == 0:
+                                    wp_all_min -= 0.01
+                                    wp_all_max += 0.01
+                            teams = [a, b]
+                            team_dict_list = []
+                            ave_rate = []
+                            team_pos = []
+                            for team in teams:
+                                team_pos.append([])
+                                rate = []
+                                rate_pos = []
+                                team_dict = {}
+                                for player in team:
+                                    rate.append(
+                                        st.session_state.rate_dict[player]["ALL"][0].mu
+                                    )
+                                team = [i for _, i in sorted(zip(rate, team))]
+                                team_list = ["", "", "", "", ""]
+                                priority_sum = 0
+                                for player in team:
+                                    tmp_list = [0, 1, 2, 3, 4]
+                                    if (
+                                        player
+                                        in st.session_state.position_priority.keys()
+                                    ):
+                                        tmp_list = [
+                                            i
+                                            for _, i in sorted(
+                                                zip(
+                                                    st.session_state.position_priority[
+                                                        player
+                                                    ],
+                                                    tmp_list,
+                                                )
+                                            )
+                                        ]
+                                    else:
+                                        role_weight = list(
+                                            st.session_state.df_player_dict[player][
+                                                "match_count"
+                                            ][:]
+                                        )
+                                        weight_list = []
+                                        for i in range(5):
+                                            weight_list.append(
+                                                role_weight[i + 1] / role_weight[0]
+                                            )
+                                        tmp_list = [
+                                            i
+                                            for _, i in sorted(
+                                                zip(weight_list, tmp_list), reverse=True
+                                            )
+                                        ]
                                     for i in range(5):
-                                        weight_list.append(
-                                            role_weight[i + 1] / role_weight[0]
-                                        )
-                                    tmp_list = [
-                                        i
-                                        for _, i in sorted(
-                                            zip(weight_list, tmp_list), reverse=True
-                                        )
-                                    ]
-                                for i in range(5):
-                                    if team_list[tmp_list[i]] == "":
-                                        priority_sum += i
-                                        team_list[tmp_list[i]] = player
-                                        rate_pos.append(
-                                            st.session_state.rate_dict[player][
-                                                position_idx[tmp_list[i] + 1]
-                                            ][0].mu
-                                        )
-                                        team_pos[-1].append(
-                                            st.session_state.rate_dict[player][
-                                                position_idx[tmp_list[i] + 1]
-                                            ][0]
-                                        )
-                                        break
-                            if priority_sum <= priority_threshold:
-                                priority_checking = False
-                            else:
-                                priority_checking = True
-                                priority_cnt += 1
-                                if priority_cnt % 50 == 0:
-                                    priority_threshold += 1
-                                break
-                            ave_rate.append(statistics.mean(rate_pos))
-                            team_dict["TOP"] = team_list[0]
-                            team_dict["JNG"] = team_list[1]
-                            team_dict["MID"] = team_list[2]
-                            team_dict["BOT"] = team_list[3]
-                            team_dict["SUP"] = team_list[4]
-                            team_dict_list.append(team_dict)
-                    wp = win_probability(
-                        team_pos[0], team_pos[1], env=st.session_state.env
+                                        if team_list[tmp_list[i]] == "":
+                                            priority_sum += i
+                                            team_list[tmp_list[i]] = player
+                                            rate_pos.append(
+                                                st.session_state.rate_dict[player][
+                                                    position_idx[tmp_list[i] + 1]
+                                                ][0].mu
+                                            )
+                                            team_pos[-1].append(
+                                                st.session_state.rate_dict[player][
+                                                    position_idx[tmp_list[i] + 1]
+                                                ][0]
+                                            )
+                                            break
+                                if priority_sum <= priority_threshold:
+                                    priority_checking = False
+                                else:
+                                    priority_checking = True
+                                    priority_cnt += 1
+                                    if priority_cnt % 50 == 0:
+                                        priority_threshold += 1
+                                    break
+                                ave_rate.append(statistics.mean(rate_pos))
+                                team_dict["TOP"] = team_list[0]
+                                team_dict["JNG"] = team_list[1]
+                                team_dict["MID"] = team_list[2]
+                                team_dict["BOT"] = team_list[3]
+                                team_dict["SUP"] = team_list[4]
+                                team_dict_list.append(team_dict)
+                        wp = win_probability(
+                            team_pos[0], team_pos[1], env=st.session_state.env
+                        )
+                        wp_cnt += 1
+                        if wp_cnt % 5 == 0:
+                            wp_min -= 0.01
+                            wp_max += 0.01
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.write(f"チームA平均レート: {ave_rate[0]:.1f}")
+                        st.write(team_dict_list[0])
+                    with col2:
+                        st.write(f"チームB平均レート: {ave_rate[1]:.1f}")
+                        st.write(team_dict_list[1])
+                    st.write(f"勝敗予測: {wp*100.0:.0f}%")
+                    my_bar = st.progress(0)
+                    my_bar.progress(wp)
+                else:
+                    st.write(f"{len(options5)} / 10")
+            with tab2:
+                top_col, jng_col, mid_col, bot_col, sup_col = st.columns(5)
+                with top_col:
+                    p0 = st.selectbox(
+                        "TOP", st.session_state.df_player_dict.keys(), key="t1_t"
                     )
-                    wp_cnt += 1
-                    if wp_cnt % 5 == 0:
-                        wp_min -= 0.01
-                        wp_max += 0.01
-                col1, col2 = st.columns(2)
-                with col1:
-                    st.write(f"チームA平均レート: {ave_rate[0]:.1f}")
-                    st.write(team_dict_list[0])
-                with col2:
-                    st.write(f"チームB平均レート: {ave_rate[1]:.1f}")
-                    st.write(team_dict_list[1])
-                st.write(f"勝敗予測: {wp*100.0:.0f}%")
-                my_bar = st.progress(0)
-                my_bar.progress(wp)
-            else:
-                st.write(f"{len(options5)} / 10")
-        with tab2:
-            top_col, jng_col, mid_col, bot_col, sup_col = st.columns(5)
-            with top_col:
-                p0 = st.selectbox(
-                    "TOP", st.session_state.df_player_dict.keys(), key="t1_t"
+                    p5 = st.selectbox(
+                        "TOP", st.session_state.df_player_dict.keys(), key="t2_t"
+                    )
+                with jng_col:
+                    p1 = st.selectbox(
+                        "JNG", st.session_state.df_player_dict.keys(), key="t1_j"
+                    )
+                    p6 = st.selectbox(
+                        "JNG", st.session_state.df_player_dict.keys(), key="t2_j"
+                    )
+                with mid_col:
+                    p2 = st.selectbox(
+                        "MID", st.session_state.df_player_dict.keys(), key="t1_m"
+                    )
+                    p7 = st.selectbox(
+                        "MID", st.session_state.df_player_dict.keys(), key="t2_m"
+                    )
+                with bot_col:
+                    p3 = st.selectbox(
+                        "BOT", st.session_state.df_player_dict.keys(), key="t1_b"
+                    )
+                    p8 = st.selectbox(
+                        "BOT", st.session_state.df_player_dict.keys(), key="t2_b"
+                    )
+                with sup_col:
+                    p4 = st.selectbox(
+                        "SUP", st.session_state.df_player_dict.keys(), key="t1_s"
+                    )
+                    p9 = st.selectbox(
+                        "SUP", st.session_state.df_player_dict.keys(), key="t2_s"
+                    )
+                team_a = (
+                    st.session_state.rate_dict[p0]["TOP"][0],
+                    st.session_state.rate_dict[p1]["JNG"][0],
+                    st.session_state.rate_dict[p2]["MID"][0],
+                    st.session_state.rate_dict[p3]["BOT"][0],
+                    st.session_state.rate_dict[p4]["SUP"][0],
                 )
-                p5 = st.selectbox(
-                    "TOP", st.session_state.df_player_dict.keys(), key="t2_t"
+                team_b = (
+                    st.session_state.rate_dict[p5]["TOP"][0],
+                    st.session_state.rate_dict[p6]["JNG"][0],
+                    st.session_state.rate_dict[p7]["MID"][0],
+                    st.session_state.rate_dict[p8]["BOT"][0],
+                    st.session_state.rate_dict[p9]["SUP"][0],
                 )
-            with jng_col:
-                p1 = st.selectbox(
-                    "JNG", st.session_state.df_player_dict.keys(), key="t1_j"
-                )
-                p6 = st.selectbox(
-                    "JNG", st.session_state.df_player_dict.keys(), key="t2_j"
-                )
-            with mid_col:
-                p2 = st.selectbox(
-                    "MID", st.session_state.df_player_dict.keys(), key="t1_m"
-                )
-                p7 = st.selectbox(
-                    "MID", st.session_state.df_player_dict.keys(), key="t2_m"
-                )
-            with bot_col:
-                p3 = st.selectbox(
-                    "BOT", st.session_state.df_player_dict.keys(), key="t1_b"
-                )
-                p8 = st.selectbox(
-                    "BOT", st.session_state.df_player_dict.keys(), key="t2_b"
-                )
-            with sup_col:
-                p4 = st.selectbox(
-                    "SUP", st.session_state.df_player_dict.keys(), key="t1_s"
-                )
-                p9 = st.selectbox(
-                    "SUP", st.session_state.df_player_dict.keys(), key="t2_s"
-                )
-            team_a = (
-                st.session_state.rate_dict[p0]["TOP"][0],
-                st.session_state.rate_dict[p1]["JNG"][0],
-                st.session_state.rate_dict[p2]["MID"][0],
-                st.session_state.rate_dict[p3]["BOT"][0],
-                st.session_state.rate_dict[p4]["SUP"][0],
-            )
-            team_b = (
-                st.session_state.rate_dict[p5]["TOP"][0],
-                st.session_state.rate_dict[p6]["JNG"][0],
-                st.session_state.rate_dict[p7]["MID"][0],
-                st.session_state.rate_dict[p8]["BOT"][0],
-                st.session_state.rate_dict[p9]["SUP"][0],
-            )
-            wp_pos = win_probability(team_a, team_b, env=st.session_state.env)
-            st.write(f"勝敗予測: {wp_pos*100.0:.0f}%")
-            my_bar_pos = st.progress(0)
-            my_bar_pos.progress(wp_pos)
+                wp_pos = win_probability(team_a, team_b, env=st.session_state.env)
+                st.write(f"勝敗予測: {wp_pos*100.0:.0f}%")
+                my_bar_pos = st.progress(0)
+                my_bar_pos.progress(wp_pos)
 
 
 def page_benzaiten():
