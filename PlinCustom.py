@@ -1,4 +1,6 @@
+import codecs
 import itertools
+import json
 import math
 import os
 import random
@@ -40,15 +42,34 @@ def get_dataframe(_blobs, bucket_name, _client):
     df_list = []
     for blob in _blobs:
         file_path = blob.name
-        if os.path.isfile(f"csv/{file_path}"):
-            df = pd.read_csv(f"csv/{file_path}")
+        if file_path == "players_name.json":
+            if os.path.isfile(f"json/{file_path}"):
+                with codecs.open(f"json/{file_path}", "r") as fp:
+                    name_dict = json.load(fp)
+            else:
+                content = read_file(bucket_name, file_path, _client)
+                name_dict = json.loads(content)
+                with codecs.open(f"json/{file_path}", "w", "utf-8") as fp:
+                    json.dump(name_dict, fp, ensure_ascii=False)
+        elif file_path == "position_priority.json":
+            if os.path.isfile(f"json/{file_path}"):
+                with codecs.open(f"json/{file_path}", "r") as fp:
+                    position_priority = json.load(fp)
+            else:
+                content = read_file(bucket_name, file_path, _client)
+                position_priority = json.loads(content)
+                with codecs.open(f"json/{file_path}", "w", "utf-8") as fp:
+                    json.dump(position_priority, fp, ensure_ascii=False)
         else:
-            content = read_file(bucket_name, file_path, _client)
-            df = pd.read_csv(BytesIO(content))
-            df.to_csv(f"csv/{file_path}")
-        df["cs"] = df["minionsKilled"] + df["neutralMinionsKilled"]
-        df_list.append(df)
-    return df_list
+            if os.path.isfile(f"csv/{file_path}"):
+                df = pd.read_csv(f"csv/{file_path}")
+            else:
+                content = read_file(bucket_name, file_path, _client)
+                df = pd.read_csv(BytesIO(content))
+                df.to_csv(f"csv/{file_path}")
+            df["cs"] = df["minionsKilled"] + df["neutralMinionsKilled"]
+            df_list.append(df)
+    return df_list, name_dict, position_priority
 
 
 st.set_page_config(
@@ -78,13 +99,6 @@ def get_all_record():
     bucket_name = "custom-match-history"
     blobs = get_blobs(bucket_name, client)
 
-    name_dict = {
-        "弁天町5520001": "弁財天",
-        "弁天魚のムニエル": "弁財天",
-        "ナウナヤングマン": "ヤングマン",
-        "Пудинг": "魔法少女ぷりん",
-    }
-
     match_dict = dict(
         match_count=[0, 0, 0, 0, 0, 0],
         win_count=[0, 0, 0, 0, 0, 0],
@@ -108,7 +122,11 @@ def get_all_record():
     }
     position_idx = ["ALL", "TOP", "JNG", "MID", "BOT", "SUP"]
     df_personal = pd.DataFrame(data=match_dict, index=position_idx)
-    st.session_state.df_list = get_dataframe(blobs, bucket_name, client)
+    (
+        st.session_state.df_list,
+        name_dict,
+        st.session_state.position_priority,
+    ) = get_dataframe(blobs, bucket_name, client)
     for df in st.session_state.df_list:
         team1 = {}
         team2 = {}
@@ -622,24 +640,6 @@ def page_balancer():
             del st.session_state[key]
         get_all_record()
     if "df_player_dict" in st.session_state:
-        position_priority = {
-            "弁財天": [3, 0, 4, 1, 2],
-            "ヤングマン": [4, 1, 2, 0, 3],
-            "ML狼": [4, 3, 0, 2, 1],
-            "miz0chi": [1, 2, 4, 3, 0],
-            "のっぺぃ": [0, 3, 2, 4, 1],
-            "魔法少女ぷりん": [0, 3, 1, 2, 4],
-            "Raraku": [3, 1, 2, 4, 0],
-            "GaHaHaCiK": [1, 2, 3, 0, 4],
-            "Dan14": [0, 2, 1, 4, 3],
-            "Nitorite": [3, 4, 0, 1, 2],
-            "サイファ": [0, 1, 4, 3, 2],
-            "HAROZ100": [0, 4, 2, 3, 1],
-            "zridalma": [1, 0, 3, 4, 2],
-            "soutou": [1, 2, 4, 0, 3],
-            "workman0215": [1, 4, 0, 3, 2],
-            "Ñight": [1, 4, 3, 2, 0],
-        }
         position_idx = ["ALL", "TOP", "JNG", "MID", "BOT", "SUP"]
         st.write("チームバランサー")
 
@@ -690,11 +690,14 @@ def page_balancer():
                         priority_sum = 0
                         for player in team:
                             tmp_list = [0, 1, 2, 3, 4]
-                            if player in position_priority.keys():
+                            if player in st.session_state.position_priority.keys():
                                 tmp_list = [
                                     i
                                     for _, i in sorted(
-                                        zip(position_priority[player], tmp_list)
+                                        zip(
+                                            st.session_state.position_priority[player],
+                                            tmp_list,
+                                        )
                                     )
                                 ]
                             else:
