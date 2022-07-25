@@ -656,8 +656,8 @@ def page_balancer():
                 )
                 if len(options5) == 10:
                     st.button("再振り分け")
-                    wp_min = 0.4
-                    wp_max = 0.6
+                    wp_min = 0.35
+                    wp_max = 0.65
                     wp = 0.0
                     wp_cnt = 0
                     while wp < wp_min or wp > wp_max:
