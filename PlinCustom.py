@@ -665,31 +665,9 @@ def page_balancer():
                         priority_cnt = 0
                         priority_threshold = 2
                         while priority_checking:
-                            wp_all_cnt = 0
-                            wp_all = 0.0
-                            wp_all_min = 0.4
-                            wp_all_max = 0.6
-                            while wp_all < wp_all_min or wp_all > wp_all_max:
-                                options5 = random.sample(options5, 10)
-                                a = options5[:5]
-                                b = options5[5:]
-                                t3 = []
-                                t4 = []
-                                for player in a:
-                                    t3.append(
-                                        st.session_state.rate_dict[player]["ALL"][0]
-                                    )
-                                for player in b:
-                                    t4.append(
-                                        st.session_state.rate_dict[player]["ALL"][0]
-                                    )
-                                wp_all = win_probability(
-                                    t3, t4, env=st.session_state.env
-                                )
-                                wp_all_cnt += 1
-                                if wp_all_cnt % 5 == 0:
-                                    wp_all_min -= 0.01
-                                    wp_all_max += 0.01
+                            options5 = random.sample(options5, 10)
+                            a = options5[:5]
+                            b = options5[5:]
                             teams = [a, b]
                             team_dict_list = []
                             ave_rate = []
