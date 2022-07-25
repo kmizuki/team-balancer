@@ -690,6 +690,7 @@ def page_balancer():
                                 if wp_all_cnt % 5 == 0:
                                     wp_all_min -= 0.01
                                     wp_all_max += 0.01
+                            teams = [a, b]
                             team_dict_list = []
                             ave_rate = []
                             team_pos = []
