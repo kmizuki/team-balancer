@@ -738,6 +738,7 @@ def page_balancer():
                                 if priority_sum:
                                     priority_checking = False
                                 else:
+                                    priority_checking = True
                                     priority_cnt += 1
                                     if priority_cnt % 50 == 0:
                                         priority_threshold += 1
