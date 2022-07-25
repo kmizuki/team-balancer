@@ -683,7 +683,7 @@ def page_balancer():
                                     )
                                 team = [i for _, i in sorted(zip(rate, team))]
                                 team_list = ["", "", "", "", ""]
-                                priority_sum = 0
+                                priority_sum = True
                                 for player in team:
                                     tmp_list = [0, 1, 2, 3, 4]
                                     if (
@@ -718,9 +718,8 @@ def page_balancer():
                                                 zip(weight_list, tmp_list), reverse=True
                                             )
                                         ]
-                                    for i in range(5):
+                                    for i in range(priority_threshold):
                                         if team_list[tmp_list[i]] == "":
-                                            priority_sum += i
                                             team_list[tmp_list[i]] = player
                                             rate_pos.append(
                                                 st.session_state.rate_dict[player][
@@ -733,10 +732,12 @@ def page_balancer():
                                                 ][0]
                                             )
                                             break
-                                if priority_sum <= priority_threshold:
+                                        else:
+                                            if i == priority_threshold - 1:
+                                                priority_sum = False
+                                if priority_sum:
                                     priority_checking = False
                                 else:
-                                    priority_checking = True
                                     priority_cnt += 1
                                     if priority_cnt % 50 == 0:
                                         priority_threshold += 1
@@ -752,7 +753,7 @@ def page_balancer():
                             team_pos[0], team_pos[1], env=st.session_state.env
                         )
                         wp_cnt += 1
-                        if wp_cnt % 5 == 0:
+                        if wp_cnt % 2 == 0:
                             wp_min -= 0.01
                             wp_max += 0.01
                     col1, col2 = st.columns(2)
