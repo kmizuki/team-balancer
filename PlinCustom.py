@@ -674,14 +674,14 @@ def page_balancer():
                             team_pos = []
                             for team in teams:
                                 team_pos.append([])
-                                rate = []
+                                # rate = []
                                 rate_pos = []
                                 team_dict = {}
-                                for player in team:
-                                    rate.append(
-                                        st.session_state.rate_dict[player]["ALL"][0].mu
-                                    )
-                                team = [i for _, i in sorted(zip(rate, team))]
+                                # for player in team:
+                                #     rate.append(
+                                #         st.session_state.rate_dict[player]["ALL"][0].mu
+                                #     )
+                                # team = [i for _, i in sorted(zip(rate, team))]
                                 team_list = ["", "", "", "", ""]
                                 priority_sum = True
                                 for player in team:
