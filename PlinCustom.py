@@ -740,7 +740,7 @@ def page_balancer():
                                 else:
                                     priority_checking = True
                                     priority_cnt += 1
-                                    if priority_cnt % 50 == 0:
+                                    if priority_cnt % 100 == 0:
                                         priority_threshold += 1
                                     break
                                 ave_rate.append(statistics.mean(rate_pos))
